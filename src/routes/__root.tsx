@@ -2,21 +2,21 @@ import {
   HeadContent,
   Outlet,
   Scripts,
-  createRootRouteWithContext,
+  createRootRouteWithContext, useLocation 
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import { Sidebar } from '../components/layout/Sidebar'
+import { DashboardPage } from '../components/dashboard/DashboardPage'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
 
-
 import { LayoutProvider, useLayout } from '../components/layout/LayoutContext'
 import { ThemeProvider } from '../components/layout/ThemeProvider'
-import { TabsProvider } from '../components/layout/TabsContext'
+import { TabsProvider, useTabs } from '../components/layout/TabsContext'
 import { TabsBar } from '../components/layout/TabsBar'
 import { ModalWrapper } from '../components/layout/ModalWrapper'
 import type { QueryClient } from '@tanstack/react-query'
@@ -96,9 +96,21 @@ function AppShell() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TabsBar />
         <main className="flex-1 overflow-y-auto bg-muted/20 relative">
-          <Outlet />
+          <OutletWrapper />
         </main>
       </div>
     </div>
   )
+}
+
+function OutletWrapper() {
+  const { activeTabId } = useTabs()
+  const location = useLocation()
+
+  // Show Dashboard when no tab is active (deselected state) and on home route
+  if (!activeTabId && location.pathname === '/') {
+    return <DashboardPage />
+  }
+
+  return <Outlet />
 }

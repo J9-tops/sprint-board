@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import { useModalStore } from '@/stores/modals'
 import type { ModalState } from '@/stores/modals'
+import { useModalStore } from '@/stores/modals'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { Drawer, DrawerContent } from '@/components/ui/drawer'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
@@ -14,7 +14,9 @@ import { CardModalContent } from '@/components/board/modal/CardModal'
 function renderModal(modalState: ModalState, closeModal: () => void) {
   switch (modalState.modalType) {
     case 'create-board': {
-      const props = modalState.data as { onCreate?: (data: { title: string; background: string }) => void }
+      const props = modalState.data as {
+        onCreate?: (data: { title: string; background: string }) => void
+      }
       return (
         <CreateBoardModalContent
           onClose={closeModal}

@@ -21,6 +21,7 @@ interface TabsContextType {
   addTab: (tab: Tab) => void
   closeTab: (id: string) => void
   setActiveTab: (id: string) => void
+  deselectAllTabs: () => void
   reorderTabs: (newTabs: Array<Tab>) => void
 }
 
@@ -101,6 +102,9 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
     const matchingTab = tabs.find((t) => t.path === currentPath)
     if (matchingTab) {
       setActiveTabId(matchingTab.id)
+    } else if (currentPath === '/' && tabs.length > 0) {
+      // On dashboard (/) with tabs open - user clicked Home, deselect all
+      // Don't auto-select a tab when on the dashboard
     } else if (tabs.length > 0 && !activeTabId) {
       // If we have tabs but none match current path, maybe just generic handling?
       // Ideally we might want to Add a tab for the current page if it's a board?
@@ -146,6 +150,11 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const deselectAllTabs = () => {
+    setActiveTabId(null)
+    navigate({ to: '/' })
+  }
+
   const reorderTabs = (newTabs: Array<Tab>) => {
     setTabs(newTabs)
   }
@@ -158,6 +167,7 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
         addTab,
         closeTab,
         setActiveTab: manualSetActiveTab,
+        deselectAllTabs,
         reorderTabs,
       }}
     >

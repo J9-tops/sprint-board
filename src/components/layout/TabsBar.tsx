@@ -1,7 +1,7 @@
 import React from 'react'
 import { File, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { useTabs } from './TabsContext'
+import { cn } from '@/lib/utils'
 
 export function TabsBar() {
   const { tabs, activeTabId, closeTab, setActiveTab } = useTabs()

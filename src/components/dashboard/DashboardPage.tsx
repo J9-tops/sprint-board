@@ -1,7 +1,5 @@
-import { Home, LayoutGrid, Star} from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useLocation } from '@tanstack/react-router'
-import { useTabs } from '../layout/TabsContext'
+import { LayoutGrid, Star } from 'lucide-react'
+import { useState } from 'react'
 import { BoardSection } from './BoardSection'
 import { BoardCard } from './BoardCard'
 import { CreateBoardCard } from './CreateBoardCard'
@@ -11,18 +9,7 @@ import { ALL_BOARDS, STARRED_BOARDS } from '@/lib/mock-data'
 export function DashboardPage() {
   const [starredBoards] = useState(STARRED_BOARDS)
   const [allBoards, setAllBoards] = useState(ALL_BOARDS)
-  const { addTab } = useTabs()
   const { openModal } = useModalStore()
-  const location = useLocation()
-
-  useEffect(() => {
-    addTab({
-      id: 'home',
-      title: 'Home',
-      path: location.pathname,
-      icon: <Home size={13} />,
-    })
-  }, [addTab, location.pathname])
 
   const handleCreateBoard = (data: { title: string; background: string }) => {
     const newBoard = {

@@ -1,4 +1,11 @@
-import { Bell, CheckCircle2, HelpCircle, KanbanSquare, Menu, Search  } from 'lucide-react'
+import {
+  Bell,
+  CheckCircle2,
+  HelpCircle,
+  KanbanSquare,
+  Menu,
+  Search,
+} from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
