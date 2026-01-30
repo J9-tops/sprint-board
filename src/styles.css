@@ -136,3 +136,43 @@ code {
     @apply bg-background text-foreground;
   }
 }
+@layer utilities {
+  .scrollbar-premium {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-foreground) transparent;
+  }
+
+  .scrollbar-premium::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+  }
+
+  .scrollbar-premium::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 8px;
+    margin: 4px;
+  }
+
+  .scrollbar-premium::-webkit-scrollbar-thumb {
+    background-color: var(--muted-foreground);
+    opacity: 0.3;
+    border-radius: 8px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+    transition: background-color 0.2s;
+  }
+
+  .scrollbar-premium::-webkit-scrollbar-thumb:hover {
+    background-color: var(--foreground);
+    opacity: 0.6;
+  }
+
+  /* Hide scrollbar but keep functionality for cleaner look */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
