@@ -55,7 +55,7 @@ export function CardModal({ isOpen, onClose, card }: CardModalProps) {
   if (isDesktop) {
     return (
       <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="right" className="p-0 sm:max-w-200 border-l-border/50 shadow-2xl">
+        <SheetContent side="right" className="p-0 sm:max-w-200 border-l-border/50 shadow-2xl" showCloseButton={false}>
           {Content}
         </SheetContent>
       </Sheet>

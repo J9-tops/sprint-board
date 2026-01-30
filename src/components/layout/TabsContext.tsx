@@ -38,10 +38,11 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Save tabs to cookies
+  // Save tabs to cookies (exclude icon property as it's not serializable)
   useEffect(() => {
     if (tabs.length > 0) {
-      setCookie('workspace-tabs', JSON.stringify(tabs));
+      const tabsToSave = tabs.map(({ icon, ...rest }) => rest);
+      setCookie('workspace-tabs', JSON.stringify(tabsToSave));
     }
   }, [tabs]);
 

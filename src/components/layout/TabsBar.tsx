@@ -1,3 +1,4 @@
+import React from "react";
 import { X, File } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTabs } from "./TabsContext";
@@ -25,7 +26,8 @@ export function TabsBar() {
             tabIndex={0}
           >
             <span className={cn("shrink-0 opacity-70", isActive ? "text-primary" : "")}>
-               {tab.icon || <File size={13} />}
+               {/* Only render icon if it's a valid element (not from JSON) currently we just strip it so it falls back */}
+               {React.isValidElement(tab.icon) ? tab.icon : <File size={13} />}
             </span>
             
             <span className="truncate flex-1">{tab.title}</span>
