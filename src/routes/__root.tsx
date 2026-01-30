@@ -1,12 +1,14 @@
 import {
   HeadContent,
+  Outlet,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
-import Header from '../components/Header'
+import { Sidebar } from '../components/layout/Sidebar'
+
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
@@ -29,7 +31,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'KanbanOffline',
       },
     ],
     links: [
@@ -43,15 +45,26 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   shellComponent: RootDocument,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+
+import { LayoutProvider, useLayout } from '../components/layout/LayoutContext'
+import { ThemeProvider } from '../components/layout/ThemeProvider'
+import { TabsProvider } from '../components/layout/TabsContext'
+import { TabsBar } from '../components/layout/TabsBar'
+
+function RootDocument() {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <HeadContent />
       </head>
-      <body>
-        <Header />
-        {children}
+      <body className="antialiased font-sans bg-background text-foreground">
+        <LayoutProvider>
+          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <TabsProvider>
+              <AppShell />
+            </TabsProvider>
+          </ThemeProvider>
+        </LayoutProvider>
         <TanStackDevtools
           config={{
             position: 'bottom-right',
@@ -67,5 +80,21 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
+  )
+}
+
+function AppShell() {
+  const { isSidebarOpen, closeSidebar } = useLayout()
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <TabsBar />
+        <main className="flex-1 overflow-y-auto bg-muted/20 relative">
+          <Outlet />
+        </main>
+      </div>
+    </div>
   )
 }
