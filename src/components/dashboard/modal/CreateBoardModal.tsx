@@ -35,7 +35,6 @@ export function CreateBoardModalContent({
 
       <form onSubmit={handleSubmit}>
         <div className="px-6 space-y-6">
-          {/* Preview & Input Combined */}
           <div
             className={cn(
               'w-full h-32 rounded-lg flex items-center justify-center p-8 transition-all duration-300 shadow-inner',

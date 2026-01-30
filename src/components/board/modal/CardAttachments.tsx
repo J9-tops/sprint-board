@@ -1,11 +1,8 @@
 import {
-  Download,
   FileText,
   Image as ImageIcon,
   Paperclip,
-  Trash2,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 export function CardAttachments() {
   const files = [

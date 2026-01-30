@@ -14,7 +14,6 @@ interface SidebarProps {
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
-      {/* Mobile Overlay */}
       <div
         className={cn(
           'fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300',

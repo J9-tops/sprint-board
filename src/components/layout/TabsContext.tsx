@@ -44,7 +44,6 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Initialize tabs from localStorage with path validation
   useEffect(() => {
     const savedTabs = getLocalStorageItem<Array<Tab>>('workspace-tabs', [])
     const savedActiveTabId = getLocalStorageItem<string | null>(
@@ -71,7 +70,6 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
   const saveTabsRef = useRef<(() => void) | null>(null)
   const saveActiveTabRef = useRef<((id: string | null) => void) | null>(null)
 
-  // Save tabs to localStorage (debounced, exclude icon property)
   useEffect(() => {
     if (!saveTabsRef.current) {
       saveTabsRef.current = debounce(() => {
@@ -86,7 +84,6 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
     saveTabsRef.current()
   }, [tabs])
 
-  // Save activeTabId to localStorage (debounced)
   useEffect(() => {
     if (!saveActiveTabRef.current) {
       saveActiveTabRef.current = debounce((id: string | null) => {
@@ -96,18 +93,15 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
     saveActiveTabRef.current(activeTabId)
   }, [activeTabId])
 
-  // Sync active tab with location
   useEffect(() => {
     const currentPath = location.pathname
     const matchingTab = tabs.find((t) => t.path === currentPath)
     if (matchingTab) {
       setActiveTabId(matchingTab.id)
     } else if (currentPath === '/' && tabs.length > 0) {
-      // On dashboard (/) with tabs open - user clicked Home, deselect all
-      // Don't auto-select a tab when on the dashboard
+    
     } else if (tabs.length > 0 && !activeTabId) {
-      // If we have tabs but none match current path, maybe just generic handling?
-      // Ideally we might want to Add a tab for the current page if it's a board?
+
     }
   }, [location.pathname, tabs])
 
@@ -117,7 +111,6 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
       return [...prev, tab]
     })
     setActiveTabId(tab.id)
-    // Navigate to it
     if (location.pathname !== tab.path) {
       navigate({ to: tab.path })
     }
@@ -127,7 +120,6 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
     setTabs((prev) => {
       const newTabs = prev.filter((t) => t.id !== id)
 
-      // If closing active tab, switch to another
       if (id === activeTabId) {
         if (newTabs.length > 0) {
           const lastTab = newTabs[newTabs.length - 1]

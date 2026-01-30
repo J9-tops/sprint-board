@@ -46,7 +46,6 @@ export function BoardHeader({ title, isStarred }: BoardHeaderProps) {
 
   return (
     <div className="h-12 bg-background/95 backdrop-blur border-b flex items-center justify-between px-4 shrink-0 gap-4">
-      {/* Left: Breadcrumbs & Title */}
       <div className="flex items-center gap-2 overflow-hidden">
         <Button
           variant="ghost"
@@ -113,7 +112,6 @@ export function BoardHeader({ title, isStarred }: BoardHeaderProps) {
         </div>
       </div>
 
-      {/* Right: Actions */}
       <div className="flex items-center gap-1 shrink-0">
         <Button
           variant="ghost"

@@ -8,9 +8,6 @@ import { useMediaQuery } from '@/hooks/use-media-query'
 import { CreateBoardModalContent } from '@/components/dashboard/modal/CreateBoardModal'
 import { CardModalContent } from '@/components/board/modal/CardModal'
 
-/**
- * Renders the appropriate modal content based on modalType
- */
 function renderModal(modalState: ModalState, closeModal: () => void) {
   switch (modalState.modalType) {
     case 'create-board': {

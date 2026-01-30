@@ -7,7 +7,7 @@ import Link from '@tiptap/extension-link'
 export function useRichTextEditor(
   placeholder: string = 'Add a more detailed description...',
 ) {
-  const editor = useEditor({
+  return useEditor({
     extensions: [
       StarterKit,
       Underline,
@@ -22,6 +22,4 @@ export function useRichTextEditor(
       },
     },
   })
-
-  return editor
 }

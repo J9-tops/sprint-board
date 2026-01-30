@@ -35,7 +35,6 @@ export function BoardCard({
           background || 'bg-card shadow-sm',
         )}
       >
-        {/* Shine effect on hover */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity bg-gradient-to-tr from-white/20 via-transparent to-transparent pointer-events-none" />
 
         <div className="flex justify-between items-start relative z-10">
@@ -76,7 +75,6 @@ export function BoardCard({
           </div>
         )}
 
-        {/* Dynamic Darkening Overlay */}
         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
       </div>
     </Link>
