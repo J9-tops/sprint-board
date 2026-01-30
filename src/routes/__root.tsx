@@ -1,8 +1,10 @@
+import { useEffect } from 'react'
 import {
   HeadContent,
   Outlet,
   Scripts,
-  createRootRouteWithContext, useLocation 
+  createRootRouteWithContext,
+  useLocation,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
@@ -88,7 +90,28 @@ function RootDocument() {
 }
 
 function AppShell() {
-  const { isSidebarOpen, closeSidebar } = useLayout()
+  const { isSidebarOpen, closeSidebar, openSidebar, toggleSidebar } =
+    useLayout()
+  const { tabs } = useTabs()
+  const location = useLocation()
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault()
+        toggleSidebar()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [toggleSidebar])
+
+  useEffect(() => {
+    if (location.pathname === '/' && tabs.length === 0 && !isSidebarOpen) {
+      openSidebar()
+    }
+  }, [location.pathname, tabs.length, isSidebarOpen, openSidebar])
 
   return (
     <div className="flex h-screen overflow-hidden">
