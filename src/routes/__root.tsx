@@ -9,7 +9,6 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import { Sidebar } from '../components/layout/Sidebar'
 
-
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
@@ -45,7 +44,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   shellComponent: RootDocument,
 })
 
-
 import { LayoutProvider, useLayout } from '../components/layout/LayoutContext'
 import { ThemeProvider } from '../components/layout/ThemeProvider'
 import { TabsProvider } from '../components/layout/TabsContext'
@@ -53,13 +51,17 @@ import { TabsBar } from '../components/layout/TabsBar'
 
 function RootDocument() {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body className="antialiased font-sans bg-background text-foreground">
         <LayoutProvider>
-          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <ThemeProvider
+            defaultTheme="dark"
+            storageKey="vite-ui-theme"
+            enableSystem
+          >
             <TabsProvider>
               <AppShell />
             </TabsProvider>

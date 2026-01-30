@@ -19,7 +19,7 @@ import { FilterPanel } from './FilterPanel'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { useLayout } from '@/components/layout/LayoutContext'
-import { useTheme } from '@/components/layout/ThemeProvider'
+import { useTheme } from 'next-themes'
 import {
   ContextMenu,
   ContextMenuContent,
