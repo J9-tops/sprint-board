@@ -1,117 +1,175 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from '@tanstack/react-router';
-import { getCookie, setCookie } from "@/lib/cookie-storage"
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from 'react'
+import { useNavigate, useLocation } from '@tanstack/react-router'
+import { getLocalStorageItem, setLocalStorageItem } from '@/lib/cookie-storage'
 
 export interface Tab {
-  id: string;
-  title: string;
-  path: string;
-  icon?: React.ReactNode;
+  id: string
+  title: string
+  path: string
+  icon?: React.ReactNode
 }
 
 interface TabsContextType {
-  tabs: Tab[];
-  activeTabId: string | null;
-  addTab: (tab: Tab) => void;
-  closeTab: (id: string) => void;
-  setActiveTab: (id: string) => void;
-  reorderTabs: (newTabs: Tab[]) => void;
+  tabs: Tab[]
+  activeTabId: string | null
+  addTab: (tab: Tab) => void
+  closeTab: (id: string) => void
+  setActiveTab: (id: string) => void
+  reorderTabs: (newTabs: Tab[]) => void
 }
 
-const TabsContext = createContext<TabsContextType | undefined>(undefined);
+const TabsContext = createContext<TabsContextType | undefined>(undefined)
 
 export function TabsProvider({ children }: { children: React.ReactNode }) {
-  const [tabs, setTabs] = useState<Tab[]>([]);
-  const [activeTabId, setActiveTabId] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [tabs, setTabs] = useState<Tab[]>([])
+  const [activeTabId, setActiveTabId] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  // Initialize tabs from cookies
+  function debounce<T extends (...args: any[]) => any>(
+    func: T,
+    delay: number,
+  ): (...args: Parameters<T>) => void {
+    let timeoutId: NodeJS.Timeout | null = null
+    return (...args: Parameters<T>) => {
+      if (timeoutId) clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => func(...args), delay)
+    }
+  }
+
+  // Initialize tabs from localStorage with path validation
   useEffect(() => {
-    const savedTabs = getCookie('workspace-tabs');
-    if (savedTabs) {
-      try {
-        setTabs(JSON.parse(savedTabs));
-      } catch (e) {
-        console.error("Failed to parse tabs", e);
+    const savedTabs = getLocalStorageItem<Tab[]>('workspace-tabs', [])
+    const savedActiveTabId = getLocalStorageItem<string | null>(
+      'workspace-active-tab',
+      null,
+    )
+
+    if (savedTabs.length > 0) {
+      const validTabs = savedTabs.filter(
+        (tab) => tab.path && typeof tab.path === 'string',
+      )
+      setTabs(validTabs)
+      if (
+        savedActiveTabId &&
+        validTabs.some((t) => t.id === savedActiveTabId)
+      ) {
+        setActiveTabId(savedActiveTabId)
+      } else if (validTabs.length > 0) {
+        setActiveTabId(validTabs[0].id)
       }
     }
-  }, []);
+  }, [])
 
-  // Save tabs to cookies (exclude icon property as it's not serializable)
+  const saveTabsRef = useRef<(() => void) | null>(null)
+  const saveActiveTabRef = useRef<((id: string | null) => void) | null>(null)
+
+  // Save tabs to localStorage (debounced, exclude icon property)
   useEffect(() => {
-    if (tabs.length > 0) {
-      const tabsToSave = tabs.map(({ icon, ...rest }) => rest);
-      setCookie('workspace-tabs', JSON.stringify(tabsToSave));
+    if (!saveTabsRef.current) {
+      saveTabsRef.current = debounce(() => {
+        if (tabs.length > 0) {
+          const tabsToSave = tabs.map(({ icon, ...rest }) => rest)
+          setLocalStorageItem('workspace-tabs', tabsToSave)
+        } else {
+          setLocalStorageItem('workspace-tabs', [])
+        }
+      }, 500)
     }
-  }, [tabs]);
+    saveTabsRef.current()
+  }, [tabs])
+
+  // Save activeTabId to localStorage (debounced)
+  useEffect(() => {
+    if (!saveActiveTabRef.current) {
+      saveActiveTabRef.current = debounce((id: string | null) => {
+        setLocalStorageItem('workspace-active-tab', id)
+      }, 500)
+    }
+    saveActiveTabRef.current(activeTabId)
+  }, [activeTabId])
 
   // Sync active tab with location
   useEffect(() => {
-    const currentPath = location.pathname;
-    const matchingTab = tabs.find(t => t.path === currentPath);
+    const currentPath = location.pathname
+    const matchingTab = tabs.find((t) => t.path === currentPath)
     if (matchingTab) {
-      setActiveTabId(matchingTab.id);
+      setActiveTabId(matchingTab.id)
     } else if (tabs.length > 0 && !activeTabId) {
-        // If we have tabs but none match current path, maybe just generic handling?
-        // Ideally we might want to Add a tab for the current page if it's a board?
+      // If we have tabs but none match current path, maybe just generic handling?
+      // Ideally we might want to Add a tab for the current page if it's a board?
     }
-  }, [location.pathname, tabs]);
+  }, [location.pathname, tabs])
 
   const addTab = (tab: Tab) => {
-    setTabs(prev => {
-      if (prev.some(t => t.id === tab.id)) return prev;
-      return [...prev, tab];
-    });
-    setActiveTabId(tab.id);
+    setTabs((prev) => {
+      if (prev.some((t) => t.id === tab.id)) return prev
+      return [...prev, tab]
+    })
+    setActiveTabId(tab.id)
     // Navigate to it
     if (location.pathname !== tab.path) {
-        navigate({ to: tab.path });
+      navigate({ to: tab.path })
     }
-  };
+  }
 
   const closeTab = (id: string) => {
-    setTabs(prev => {
-      const newTabs = prev.filter(t => t.id !== id);
-      
+    setTabs((prev) => {
+      const newTabs = prev.filter((t) => t.id !== id)
+
       // If closing active tab, switch to another
       if (id === activeTabId) {
         if (newTabs.length > 0) {
-          const lastTab = newTabs[newTabs.length - 1];
-          setActiveTabId(lastTab.id);
-          navigate({ to: lastTab.path });
+          const lastTab = newTabs[newTabs.length - 1]
+          setActiveTabId(lastTab.id)
+          navigate({ to: lastTab.path })
         } else {
-          setActiveTabId(null);
-          navigate({ to: '/' });
+          setActiveTabId(null)
+          navigate({ to: '/' })
         }
       }
-      return newTabs;
-    });
-  };
+      return newTabs
+    })
+  }
 
   const manualSetActiveTab = (id: string) => {
-    const tab = tabs.find(t => t.id === id);
+    const tab = tabs.find((t) => t.id === id)
     if (tab) {
-      setActiveTabId(id);
-      navigate({ to: tab.path });
+      setActiveTabId(id)
+      navigate({ to: tab.path })
     }
-  };
+  }
 
   const reorderTabs = (newTabs: Tab[]) => {
-    setTabs(newTabs);
-  };
+    setTabs(newTabs)
+  }
 
   return (
-    <TabsContext.Provider value={{ tabs, activeTabId, addTab, closeTab, setActiveTab: manualSetActiveTab, reorderTabs }}>
+    <TabsContext.Provider
+      value={{
+        tabs,
+        activeTabId,
+        addTab,
+        closeTab,
+        setActiveTab: manualSetActiveTab,
+        reorderTabs,
+      }}
+    >
       {children}
     </TabsContext.Provider>
-  );
+  )
 }
 
 export function useTabs() {
-  const context = useContext(TabsContext);
+  const context = useContext(TabsContext)
   if (context === undefined) {
-    throw new Error('useTabs must be used within a TabsProvider');
+    throw new Error('useTabs must be used within a TabsProvider')
   }
-  return context;
+  return context
 }
