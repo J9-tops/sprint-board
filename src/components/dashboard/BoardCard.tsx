@@ -1,7 +1,7 @@
 import { Star } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { Link } from '@tanstack/react-router'
 
 interface BoardCardProps {
   id: string

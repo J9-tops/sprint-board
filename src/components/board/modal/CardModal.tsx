@@ -1,31 +1,23 @@
-import { Sheet, SheetContent } from '@/components/ui/sheet'
-import { Drawer, DrawerContent } from '@/components/ui/drawer'
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { X } from 'lucide-react'
 import { CardTitle } from './CardTitle'
 import { CardBadges } from './CardBadges'
 import { CardDescription } from './CardDescription'
 import { CardChecklist } from './CardChecklist'
 import { CardAttachments } from './CardAttachments'
 import { CardSidebar } from './CardSidebar'
+import type { CardModalProps } from '@/types/modals'
 import { Button } from '@/components/ui/button'
-import { X } from 'lucide-react'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
-interface CardModalProps {
-  isOpen: boolean
+interface CardModalContentProps extends CardModalProps {
   onClose: () => void
-  card: { title: string; labels?: any[]; dueDate?: string }
 }
 
-export function CardModal({ isOpen, onClose, card }: CardModalProps) {
-  const isDesktop = useMediaQuery('(min-width: 768px)')
-
-  const Content = (
+export function CardModalContent({ card, onClose }: CardModalContentProps) {
+  return (
     <div className="flex flex-col h-full bg-card">
       <header className="h-16 flex items-center justify-between px-6 border-b shrink-0 bg-muted/20">
-        <div className="flex items-center gap-2">
-          {/* Empty space for alignment or add "Personal Task" breadcrumb if desired */}
-        </div>
+        <div className="flex items-center gap-2"></div>
         <Button
           variant="ghost"
           size="icon"
@@ -59,27 +51,5 @@ export function CardModal({ isOpen, onClose, card }: CardModalProps) {
         </div>
       </ScrollArea>
     </div>
-  )
-
-  if (isDesktop) {
-    return (
-      <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent
-          side="right"
-          className="p-0 sm:max-w-200 border-l-border/50 shadow-2xl"
-          showCloseButton={false}
-        >
-          {Content}
-        </SheetContent>
-      </Sheet>
-    )
-  }
-
-  return (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="h-[95vh] p-0 focus:outline-none">
-        {Content}
-      </DrawerContent>
-    </Drawer>
   )
 }

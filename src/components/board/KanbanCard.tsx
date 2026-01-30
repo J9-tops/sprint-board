@@ -1,9 +1,9 @@
 import {
+  AlignLeft,
   Calendar,
+  CheckCircle2,
   CheckSquare,
   Paperclip,
-  AlignLeft,
-  CheckCircle2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

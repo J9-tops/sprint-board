@@ -1,18 +1,18 @@
-import { Star, LayoutGrid, Home } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { Home, LayoutGrid, Star} from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useLocation } from '@tanstack/react-router'
 import { useTabs } from '../layout/TabsContext'
 import { BoardSection } from './BoardSection'
 import { BoardCard } from './BoardCard'
 import { CreateBoardCard } from './CreateBoardCard'
-import { CreateBoardModal } from './modal/CreateBoardModal'
-import { STARRED_BOARDS, ALL_BOARDS } from '@/lib/mock-data'
+import { useModalStore } from '@/stores/modals'
+import { ALL_BOARDS, STARRED_BOARDS } from '@/lib/mock-data'
 
 export function DashboardPage() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [starredBoards] = useState(STARRED_BOARDS)
   const [allBoards, setAllBoards] = useState(ALL_BOARDS)
   const { addTab } = useTabs()
+  const { openModal } = useModalStore()
   const location = useLocation()
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export function DashboardPage() {
       id: 'home',
       title: 'Home',
       path: location.pathname,
-      icon: <Home size={13} />
+      icon: <Home size={13} />,
     })
   }, [addTab, location.pathname])
 
@@ -37,26 +37,33 @@ export function DashboardPage() {
   return (
     <div className="flex-1 min-h-full bg-linear-to-br from-background via-background to-muted/30">
       <div className="p-4 md:p-8 lg:p-12 space-y-16 max-w-450 mx-auto">
-        <BoardSection title="Starred Boards" icon={Star} iconColor="text-yellow-500">
+        <BoardSection
+          title="Starred Boards"
+          icon={Star}
+          iconColor="text-yellow-500"
+        >
           {starredBoards.map((board) => (
             <BoardCard key={board.id} {...board} starred />
           ))}
         </BoardSection>
 
-        <BoardSection title="All Boards" icon={LayoutGrid} iconColor="text-primary" showSort>
-          <div onClick={() => setIsCreateModalOpen(true)}>
+        <BoardSection
+          title="All Boards"
+          icon={LayoutGrid}
+          iconColor="text-primary"
+          showSort
+        >
+          <div
+            onClick={() =>
+              openModal('create-board', { onCreate: handleCreateBoard })
+            }
+          >
             <CreateBoardCard />
           </div>
           {allBoards.map((board) => (
             <BoardCard key={board.id} {...board} />
           ))}
         </BoardSection>
-
-        <CreateBoardModal 
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
-          onCreate={handleCreateBoard}
-        />
       </div>
     </div>
   )

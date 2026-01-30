@@ -1,23 +1,41 @@
-import { HardDrive, Cloud } from "lucide-react";
+import { Cloud, HardDrive } from 'lucide-react'
 
 export function StorageOverview() {
   return (
     <div className="bg-card border border-border/50 rounded-2xl p-8 space-y-8 shadow-sm h-full flex flex-col items-center justify-center">
-      <h3 className="text-sm font-bold text-foreground self-start px-2 uppercase tracking-widest">Local Quota Usage</h3>
-      
+      <h3 className="text-sm font-bold text-foreground self-start px-2 uppercase tracking-widest">
+        Local Quota Usage
+      </h3>
+
       <div className="relative h-56 w-56 flex items-center justify-center">
         <svg className="h-full w-full transform -rotate-90 drop-shadow-2xl">
-          <circle cx="112" cy="112" r="95" stroke="currentColor" strokeWidth="18" fill="transparent" className="text-muted/20" />
-          <circle 
-            cx="112" cy="112" r="95" stroke="currentColor" strokeWidth="18" fill="transparent" 
-            strokeDasharray={596.9} strokeDashoffset={596.9 * (1 - 0.64)} 
-            className="text-primary transition-all duration-1000 ease-out" 
+          <circle
+            cx="112"
+            cy="112"
+            r="95"
+            stroke="currentColor"
+            strokeWidth="18"
+            fill="transparent"
+            className="text-muted/20"
+          />
+          <circle
+            cx="112"
+            cy="112"
+            r="95"
+            stroke="currentColor"
+            strokeWidth="18"
+            fill="transparent"
+            strokeDasharray={596.9}
+            strokeDashoffset={596.9 * (1 - 0.64)}
+            className="text-primary transition-all duration-1000 ease-out"
             strokeLinecap="round"
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
           <span className="text-5xl font-black tracking-tighter">64%</span>
-          <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mt-1">Used</span>
+          <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mt-1">
+            Used
+          </span>
         </div>
       </div>
 
@@ -34,7 +52,9 @@ export function StorageOverview() {
             <Cloud size={12} className="text-muted-foreground" />
             Free
           </div>
-          <p className="text-lg font-black tracking-tight text-muted-foreground">1.2 GB</p>
+          <p className="text-lg font-black tracking-tight text-muted-foreground">
+            1.2 GB
+          </p>
         </div>
       </div>
 
@@ -42,5 +62,5 @@ export function StorageOverview() {
         Limits are imposed by your browser based on available disk space.
       </p>
     </div>
-  );
+  )
 }

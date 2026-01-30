@@ -13,6 +13,12 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
 
+
+import { LayoutProvider, useLayout } from '../components/layout/LayoutContext'
+import { ThemeProvider } from '../components/layout/ThemeProvider'
+import { TabsProvider } from '../components/layout/TabsContext'
+import { TabsBar } from '../components/layout/TabsBar'
+import { ModalWrapper } from '../components/layout/ModalWrapper'
 import type { QueryClient } from '@tanstack/react-query'
 
 interface MyRouterContext {
@@ -44,11 +50,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   shellComponent: RootDocument,
 })
 
-import { LayoutProvider, useLayout } from '../components/layout/LayoutContext'
-import { ThemeProvider } from '../components/layout/ThemeProvider'
-import { TabsProvider } from '../components/layout/TabsContext'
-import { TabsBar } from '../components/layout/TabsBar'
-
 function RootDocument() {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -64,6 +65,7 @@ function RootDocument() {
           >
             <TabsProvider>
               <AppShell />
+              <ModalWrapper />
             </TabsProvider>
           </ThemeProvider>
         </LayoutProvider>

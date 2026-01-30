@@ -1,11 +1,11 @@
-import { LayoutDashboard, Home, Database } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "@tanstack/react-router";
+import { Database, Home, LayoutDashboard } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
 
 const menuItems = [
-  { icon: Home, label: "Home", to: "/" },
-  { icon: Database, label: "Storage", to: "/settings/storage" },
-];
+  { icon: Home, label: 'Home', to: '/' },
+  { icon: Database, label: 'Storage', to: '/settings/storage' },
+]
 
 export function SidebarMenu() {
   return (
@@ -17,17 +17,30 @@ export function SidebarMenu() {
         <Link
           key={item.label}
           to={item.to}
-          activeProps={{ className: "bg-secondary text-foreground" }}
-          inactiveProps={{ className: "text-muted-foreground" }}
+          activeProps={{ className: 'bg-secondary text-foreground' }}
+          inactiveProps={{ className: 'text-muted-foreground' }}
           className="block group"
         >
           {({ isActive }) => (
             <Button
-              variant={isActive ? "secondary" : "ghost"}
+              variant={isActive ? 'secondary' : 'ghost'}
               className="w-full justify-start gap-3 h-11 px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <item.icon size={18} className={isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} />
-              <span className={isActive ? "font-semibold text-foreground" : "font-medium text-muted-foreground group-hover:text-foreground"}>
+              <item.icon
+                size={18}
+                className={
+                  isActive
+                    ? 'text-primary'
+                    : 'text-muted-foreground group-hover:text-foreground'
+                }
+              />
+              <span
+                className={
+                  isActive
+                    ? 'font-semibold text-foreground'
+                    : 'font-medium text-muted-foreground group-hover:text-foreground'
+                }
+              >
                 {item.label}
               </span>
             </Button>
@@ -35,5 +48,5 @@ export function SidebarMenu() {
         </Link>
       ))}
     </nav>
-  );
+  )
 }

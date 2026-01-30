@@ -1,11 +1,11 @@
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 const workspaces = [
-  { id: "1", name: "Engineering", color: "bg-purple-500" },
-  { id: "2", name: "Marketing", color: "bg-orange-500" },
-  { id: "3", name: "Personal", color: "bg-green-500" },
-];
+  { id: '1', name: 'Engineering', color: 'bg-purple-500' },
+  { id: '2', name: 'Marketing', color: 'bg-orange-500' },
+  { id: '3', name: 'Personal', color: 'bg-green-500' },
+]
 
 export function WorkspaceList() {
   return (
@@ -29,5 +29,5 @@ export function WorkspaceList() {
         </Button>
       ))}
     </div>
-  );
+  )
 }

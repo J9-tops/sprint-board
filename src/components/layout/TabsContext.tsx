@@ -1,11 +1,11 @@
 import React, {
   createContext,
   useContext,
-  useState,
   useEffect,
   useRef,
+  useState,
 } from 'react'
-import { useNavigate, useLocation } from '@tanstack/react-router'
+import { useLocation, useNavigate } from '@tanstack/react-router'
 import { getLocalStorageItem, setLocalStorageItem } from '@/lib/cookie-storage'
 
 export interface Tab {
@@ -16,23 +16,23 @@ export interface Tab {
 }
 
 interface TabsContextType {
-  tabs: Tab[]
+  tabs: Array<Tab>
   activeTabId: string | null
   addTab: (tab: Tab) => void
   closeTab: (id: string) => void
   setActiveTab: (id: string) => void
-  reorderTabs: (newTabs: Tab[]) => void
+  reorderTabs: (newTabs: Array<Tab>) => void
 }
 
 const TabsContext = createContext<TabsContextType | undefined>(undefined)
 
 export function TabsProvider({ children }: { children: React.ReactNode }) {
-  const [tabs, setTabs] = useState<Tab[]>([])
+  const [tabs, setTabs] = useState<Array<Tab>>([])
   const [activeTabId, setActiveTabId] = useState<string | null>(null)
   const navigate = useNavigate()
   const location = useLocation()
 
-  function debounce<T extends (...args: any[]) => any>(
+  function debounce<T extends (...args: Array<any>) => any>(
     func: T,
     delay: number,
   ): (...args: Parameters<T>) => void {
@@ -45,7 +45,7 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize tabs from localStorage with path validation
   useEffect(() => {
-    const savedTabs = getLocalStorageItem<Tab[]>('workspace-tabs', [])
+    const savedTabs = getLocalStorageItem<Array<Tab>>('workspace-tabs', [])
     const savedActiveTabId = getLocalStorageItem<string | null>(
       'workspace-active-tab',
       null,
@@ -146,7 +146,7 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const reorderTabs = (newTabs: Tab[]) => {
+  const reorderTabs = (newTabs: Array<Tab>) => {
     setTabs(newTabs)
   }
 

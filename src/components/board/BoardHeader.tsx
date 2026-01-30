@@ -1,38 +1,38 @@
 import {
-  Star,
-  Filter,
-  Settings,
   ArrowDownWideNarrow,
   ChevronRight,
+  Filter,
   Home,
   Menu,
-  Sun,
   Moon,
+  Settings,
+  Star,
+  Sun,
 } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { useNavigate } from '@tanstack/react-router'
+import { FilterPanel } from './FilterPanel'
 import { Button } from '@/components/ui/button'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { FilterPanel } from './FilterPanel'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { useLayout } from '@/components/layout/LayoutContext'
-import { useTheme } from 'next-themes'
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuTrigger,
+  ContextMenuLabel,
   ContextMenuSeparator,
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-  ContextMenuLabel,
+  ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { ALL_BOARDS, STARRED_BOARDS } from '@/lib/mock-data'
-import { useNavigate } from '@tanstack/react-router'
 
 interface BoardHeaderProps {
   title: string

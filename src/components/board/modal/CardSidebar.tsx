@@ -1,12 +1,12 @@
 import {
-  Tag,
+  Archive,
+  ArrowRight,
   CheckSquare,
   Clock,
-  Paperclip,
-  Image,
-  ArrowRight,
   Copy,
-  Archive,
+  Image,
+  Paperclip,
+  Tag,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
