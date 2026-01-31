@@ -1,8 +1,4 @@
-import {
-  FileText,
-  Image as ImageIcon,
-  Paperclip,
-} from 'lucide-react'
+import { FileText, Image as ImageIcon, Paperclip } from 'lucide-react'
 
 export function CardAttachments() {
   const files = [

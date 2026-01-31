@@ -99,9 +99,7 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
     if (matchingTab) {
       setActiveTabId(matchingTab.id)
     } else if (currentPath === '/' && tabs.length > 0) {
-    
     } else if (tabs.length > 0 && !activeTabId) {
-
     }
   }, [location.pathname, tabs])
 

@@ -1,18 +1,77 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from '@tanstack/react-router'
+import { DndContext, closestCenter } from '@dnd-kit/core'
 import { Layout } from 'lucide-react'
 import { useTabs } from '../layout/TabsContext'
 import { BoardHeader } from './BoardHeader'
-import { KanbanList } from './KanbanList'
-import { KanbanCard } from './KanbanCard'
-import { useModalStore } from '@/stores/modals'
+import { BoardListsContainer } from './BoardListsContainer'
+import { BoardDragOverlay } from './BoardDragOverlay'
+import type { DragEndEvent } from '@dnd-kit/core'
+import type { BoardData, CardData } from '@/types/board'
+import { useBoardStore } from '@/stores/board'
 import { BOARD_MOCK_DATA } from '@/lib/mock-data'
-import { cn } from '@/lib/utils'
+
+function convertMockToCardData(
+  card: any,
+  index: number,
+  listId: string,
+): CardData {
+  return {
+    id: `${listId}-card-${index}`,
+    title: card.title,
+    labels: card.labels,
+    dueDate: card.dueDate,
+    checklist: card.checklist,
+    attachmentCount: card.attachmentCount,
+    hasDescription: card.hasDescription,
+    coverImage: card.coverImage,
+    topBorderColor: card.color,
+  }
+}
+
+function getInitialBoardData(): BoardData {
+  return {
+    version: '1.0.0',
+    lists: [
+      {
+        id: 'backlog',
+        title: 'Backlog',
+        cards: BOARD_MOCK_DATA.backlog.map((card, i) =>
+          convertMockToCardData(card, i, 'backlog'),
+        ),
+      },
+      {
+        id: 'in-progress',
+        title: 'In Progress',
+        cards: BOARD_MOCK_DATA.inProgress.map((card, i) =>
+          convertMockToCardData(card, i, 'in-progress'),
+        ),
+      },
+      {
+        id: 'review',
+        title: 'Review',
+        cards: BOARD_MOCK_DATA.review.map((card, i) =>
+          convertMockToCardData(card, i, 'review'),
+        ),
+      },
+      {
+        id: 'done',
+        title: 'Done',
+        cards: BOARD_MOCK_DATA.done.map((card, i) =>
+          convertMockToCardData(card, i, 'done'),
+        ),
+      },
+    ],
+  }
+}
 
 export function BoardViewPage() {
   const { addTab } = useTabs()
-  const { openModal } = useModalStore()
   const location = useLocation()
+  const reorderCards = useBoardStore((state) => state.reorderCards)
+  const reorderLists = useBoardStore((state) => state.reorderLists)
+  const boardData = useBoardStore((state) => state.boardData)
+  const [activeId, setActiveId] = useState<string | null>(null)
 
   useEffect(() => {
     addTab({
@@ -21,114 +80,50 @@ export function BoardViewPage() {
       path: location.pathname,
       icon: <Layout size={13} />,
     })
+
+    useBoardStore.setState({ boardData: getInitialBoardData() })
   }, [addTab, location.pathname])
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const startX = useRef(0)
-  const scrollLeft = useRef(0)
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over) return
 
-  const onMouseDown = (e: React.MouseEvent) => {
-    if (!scrollContainerRef.current) return
-    const target = e.target as HTMLElement
-    if (target.closest('button') || target.closest('.group')) return
+    const draggedId = active.id as string
+    const overId = over.id as string
 
-    setIsDragging(true)
-    startX.current = e.pageX - scrollContainerRef.current.offsetLeft
-    scrollLeft.current = scrollContainerRef.current.scrollLeft
-  }
+    const activeList = boardData.lists.find((l) =>
+      l.cards.some((c) => c.id === draggedId),
+    )
+    const isCard = !!activeList
 
-  const onMouseLeave = () => {
-    setIsDragging(false)
-  }
+    if (isCard) {
+      const sourceListId = activeList.id
+      const targetList = boardData.lists.find((l) =>
+        l.cards.some((c) => c.id === overId),
+      )
+      if (targetList) {
+        await reorderCards(sourceListId, draggedId, targetList.id, overId)
+      }
+    } else {
+      await reorderLists(draggedId, overId)
+    }
 
-  const onMouseUp = () => {
-    setIsDragging(false)
-  }
-
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollContainerRef.current) return
-    e.preventDefault()
-    const x = e.pageX - scrollContainerRef.current.offsetLeft
-    const walk = (x - startX.current) * 1.5
-    scrollContainerRef.current.scrollLeft = scrollLeft.current - walk
-  }
-
-  const openCardModal = (title: string) => {
-    openModal('card-detail', {
-      card: {
-        title,
-        labels: [{ name: 'FEATURE', color: 'bg-emerald-500' }],
-        dueDate: 'Oct 12, 2024',
-      },
-    })
+    setActiveId(null)
   }
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-muted/10">
       <BoardHeader title="Product Roadmap 2024" isStarred />
-
-      <div
-        ref={scrollContainerRef}
-        className={cn(
-          'flex-1 overflow-x-auto p-6 scrollbar-premium h-full',
-          isDragging ? 'cursor-grabbing select-none' : 'cursor-grab',
-        )}
-        onMouseDown={onMouseDown}
-        onMouseLeave={onMouseLeave}
-        onMouseUp={onMouseUp}
-        onMouseMove={onMouseMove}
+      <DndContext
+        collisionDetection={closestCenter}
+        onDragStart={(e) => setActiveId(e.active.id as string)}
+        onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-6 h-full items-start min-w-max pb-4">
-          <KanbanList title="Backlog" cardCount={5}>
-            {BOARD_MOCK_DATA.backlog.map((card, i) => (
-              <div
-                key={i}
-                onClick={() =>
-                  i === 0 &&
-                  openCardModal('Implement social login (Google, GitHub)')
-                }
-              >
-                <KanbanCard {...card} />
-              </div>
-            ))}
-          </KanbanList>
-
-          <KanbanList title="In Progress" cardCount={3}>
-            {BOARD_MOCK_DATA.inProgress.map((card, i) => (
-              <KanbanCard key={i} {...card} />
-            ))}
-          </KanbanList>
-
-          <KanbanList title="Review" cardCount={2}>
-            {BOARD_MOCK_DATA.review.map((card, i) => (
-              <KanbanCard key={i} {...card} />
-            ))}
-          </KanbanList>
-
-          <KanbanList title="Done" cardCount={4}>
-            {BOARD_MOCK_DATA.done.map((card, i) => (
-              <KanbanCard
-                key={i}
-                title={card.title}
-                topBorderColor={card.color}
-                dueDate={{ text: `Jul ${20 - i * 2}`, status: 'completed' }}
-                labels={
-                  card.label
-                    ? [
-                        {
-                          name: card.label,
-                          color: 'bg-slate-500',
-                          type: 'pill',
-                        },
-                      ]
-                    : []
-                }
-              />
-            ))}
-          </KanbanList>
+        <div className="flex-1 overflow-x-auto p-6 scrollbar-premium h-full">
+          <BoardListsContainer />
         </div>
-      </div>
+        <BoardDragOverlay activeId={activeId} />
+      </DndContext>
     </div>
   )
 }
