@@ -3,7 +3,7 @@
  * Single responsibility: Key-value settings CRUD.
  */
 
-import { STORE_NAMES, getItem, putItem, deleteItem, now } from '../core'
+import { STORE_NAMES, deleteItem, getItem, now, putItem } from '../core'
 import type { Setting } from '../types'
 
 export async function getSetting<T>(key: string): Promise<T | undefined> {

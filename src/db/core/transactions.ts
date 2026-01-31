@@ -12,7 +12,7 @@ import { TransactionError } from './errors'
  * All changes roll back if any operation fails.
  */
 export async function runTransaction<T>(
-  storeNames: string[],
+  storeNames: Array<string>,
   mode: IDBTransactionMode,
   operations: (
     stores: Record<string, IDBObjectStore>,
@@ -47,7 +47,10 @@ export function txGet<T>(store: IDBObjectStore, id: string): Promise<T> {
 }
 
 /** Promisify a getAll request within a transaction */
-export function txGetAll<T>(index: IDBIndex, value: IDBValidKey): Promise<T[]> {
+export function txGetAll<T>(
+  index: IDBIndex,
+  value: IDBValidKey,
+): Promise<Array<T>> {
   return new Promise((resolve, reject) => {
     const request = index.getAll(value)
     request.onsuccess = () => resolve(request.result)

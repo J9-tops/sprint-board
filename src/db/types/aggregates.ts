@@ -3,41 +3,41 @@
  */
 
 import type {
+  Attachment,
   Board,
-  List,
   Card,
-  Label,
   Checklist,
   ChecklistItem,
-  Attachment,
+  Label,
+  List,
 } from './entities'
 
 /** Card with all related data */
 export interface CardWithDetails extends Card {
-  labels: Label[]
-  checklists: ChecklistWithItems[]
-  attachments: Attachment[]
+  labels: Array<Label>
+  checklists: Array<ChecklistWithItems>
+  attachments: Array<Attachment>
 }
 
 /** Checklist with its items */
 export interface ChecklistWithItems extends Checklist {
-  items: ChecklistItem[]
+  items: Array<ChecklistItem>
 }
 
 /** Board with all related data */
 export interface BoardWithData extends Board {
-  lists: ListWithCards[]
-  labels: Label[]
+  lists: Array<ListWithCards>
+  labels: Array<Label>
 }
 
 /** List with its cards */
 export interface ListWithCards extends List {
-  cards: Card[]
+  cards: Array<Card>
 }
 
 /** Card filter options */
 export interface CardFilters {
-  labels?: string[]
+  labels?: Array<string>
   dueDateStatus?: 'none' | 'overdue' | 'today' | 'week' | 'completed'
   hasChecklist?: boolean
   checklistComplete?: boolean

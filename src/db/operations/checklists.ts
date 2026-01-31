@@ -4,17 +4,17 @@
  */
 
 import {
-  STORE_NAMES,
   POSITION_GAP,
+  STORE_NAMES,
   addItem,
-  getItem,
-  getItemOrThrow,
-  getItemsByIndex,
-  updateItem,
   deleteItem,
   deleteItemsByIndex,
   generateId,
+  getItem,
+  getItemOrThrow,
+  getItemsByIndex,
   now,
+  updateItem,
 } from '../core'
 import type {
   Checklist,
@@ -47,7 +47,7 @@ export async function getChecklist(id: string): Promise<Checklist | undefined> {
 
 export async function getChecklistsByCard(
   cardId: string,
-): Promise<Checklist[]> {
+): Promise<Array<Checklist>> {
   const checklists = await getItemsByIndex<Checklist>(
     STORE_NAMES.CHECKLISTS,
     'cardId',
@@ -98,7 +98,7 @@ export async function getChecklistItem(
 
 export async function getItemsByChecklist(
   checklistId: string,
-): Promise<ChecklistItem[]> {
+): Promise<Array<ChecklistItem>> {
   const items = await getItemsByIndex<ChecklistItem>(
     STORE_NAMES.CHECKLIST_ITEMS,
     'checklistId',

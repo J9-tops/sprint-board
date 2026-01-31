@@ -10,15 +10,15 @@ import {
   getItemsWithFilter,
 } from '../core'
 import type {
+  Attachment,
   Board,
-  List,
+  BoardStorageInfo,
   Card,
-  Label,
   Checklist,
   ChecklistItem,
-  Attachment,
+  Label,
+  List,
   StorageBreakdown,
-  BoardStorageInfo,
 } from '../types'
 
 /** Get browser storage estimate */
@@ -91,7 +91,7 @@ async function calculateArchivedSize(): Promise<number> {
 }
 
 /** Get storage breakdown by board */
-export async function getStorageByBoard(): Promise<BoardStorageInfo[]> {
+export async function getStorageByBoard(): Promise<Array<BoardStorageInfo>> {
   const boards = await getAllItems<Board>(STORE_NAMES.BOARDS)
 
   const result = await Promise.all(

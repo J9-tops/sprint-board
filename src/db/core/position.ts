@@ -56,7 +56,7 @@ export function needsNormalization(
  */
 export function normalizePositions(
   items: Array<{ id: string; position: number }>,
-): PositionUpdate[] {
+): Array<PositionUpdate> {
   const sorted = [...items].sort((a, b) => a.position - b.position)
   return sorted.map((item, index) => ({
     id: item.id,

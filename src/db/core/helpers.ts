@@ -27,7 +27,7 @@ export function promisifyTransaction(tx: IDBTransaction): Promise<void> {
 
 /** Get a transaction for the specified stores */
 export async function getTransaction(
-  storeNames: string | string[],
+  storeNames: string | Array<string>,
   mode: IDBTransactionMode = 'readonly',
 ): Promise<IDBTransaction> {
   const db = await getDB()

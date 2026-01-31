@@ -4,11 +4,11 @@
 
 import type {
   Board,
-  List,
   Card,
-  Label,
   Checklist,
   ChecklistItem,
+  Label,
+  List,
 } from './entities'
 
 /** Input type for creating entities (omits auto-generated fields) */

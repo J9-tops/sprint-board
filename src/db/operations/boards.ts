@@ -4,16 +4,16 @@
  */
 
 import {
-  STORE_NAMES,
   POSITION_GAP,
+  STORE_NAMES,
   addItem,
+  generateId,
+  getAllItems,
   getItem,
   getItemOrThrow,
-  getAllItems,
   getItemsWithFilter,
-  updateItem,
-  generateId,
   now,
+  updateItem,
 } from '../core'
 import type { Board, CreateBoardInput } from '../types'
 
@@ -42,12 +42,12 @@ export async function getBoardOrThrow(id: string): Promise<Board> {
   return getItemOrThrow<Board>(STORE_NAMES.BOARDS, id, 'Board')
 }
 
-export async function getAllBoards(): Promise<Board[]> {
+export async function getAllBoards(): Promise<Array<Board>> {
   const boards = await getAllItems<Board>(STORE_NAMES.BOARDS)
   return boards.sort((a, b) => a.position - b.position)
 }
 
-export async function getActiveBoards(): Promise<Board[]> {
+export async function getActiveBoards(): Promise<Array<Board>> {
   const boards = await getItemsWithFilter<Board>(
     STORE_NAMES.BOARDS,
     (b) => !b.isArchived,
@@ -55,7 +55,7 @@ export async function getActiveBoards(): Promise<Board[]> {
   return boards.sort((a, b) => a.position - b.position)
 }
 
-export async function getArchivedBoards(): Promise<Board[]> {
+export async function getArchivedBoards(): Promise<Array<Board>> {
   const boards = await getItemsWithFilter<Board>(
     STORE_NAMES.BOARDS,
     (b) => b.isArchived,
@@ -63,7 +63,7 @@ export async function getArchivedBoards(): Promise<Board[]> {
   return boards.sort((a, b) => b.updatedAt - a.updatedAt)
 }
 
-export async function getStarredBoards(): Promise<Board[]> {
+export async function getStarredBoards(): Promise<Array<Board>> {
   const boards = await getItemsWithFilter<Board>(
     STORE_NAMES.BOARDS,
     (b) => b.isStarred && !b.isArchived,

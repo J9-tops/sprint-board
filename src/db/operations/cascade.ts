@@ -3,7 +3,7 @@
  * Single responsibility: Multi-entity deletion transactions.
  */
 
-import { STORE_NAMES, runTransaction, txGetAll, txDeleteByIndex } from '../core'
+import { STORE_NAMES, runTransaction, txDeleteByIndex, txGetAll } from '../core'
 import type { Card } from '../types'
 
 /**

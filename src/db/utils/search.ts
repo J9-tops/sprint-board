@@ -10,7 +10,7 @@ import type { Card } from '../types'
 export async function searchCards(
   query: string,
   boardId?: string,
-): Promise<Card[]> {
+): Promise<Array<Card>> {
   const lowerQuery = query.toLowerCase()
 
   return getItemsWithFilter<Card>(STORE_NAMES.CARDS, (card) => {
@@ -23,7 +23,7 @@ export async function searchCards(
 }
 
 /** Get overdue cards */
-export async function getOverdueCards(): Promise<Card[]> {
+export async function getOverdueCards(): Promise<Array<Card>> {
   const currentTime = now()
   return getItemsWithFilter<Card>(STORE_NAMES.CARDS, (card) => {
     return (
@@ -38,7 +38,7 @@ export async function getOverdueCards(): Promise<Card[]> {
 /** Get cards due soon */
 export async function getCardsDueSoon(
   hoursAhead: number = 24,
-): Promise<Card[]> {
+): Promise<Array<Card>> {
   const currentTime = now()
   const futureTime = currentTime + hoursAhead * 60 * 60 * 1000
 

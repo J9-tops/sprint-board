@@ -6,15 +6,15 @@
 import {
   STORE_NAMES,
   addItem,
-  getItem,
-  getItemsByIndex,
-  updateItem,
   deleteItem,
   deleteItemsByIndex,
   generateId,
+  getItem,
+  getItemsByIndex,
   now,
+  updateItem,
 } from '../core'
-import type { Label, CardLabel, CreateLabelInput } from '../types'
+import type { CardLabel, CreateLabelInput, Label } from '../types'
 
 export async function createLabel(data: CreateLabelInput): Promise<Label> {
   const label: Label = {
@@ -30,7 +30,7 @@ export async function getLabel(id: string): Promise<Label | undefined> {
   return getItem<Label>(STORE_NAMES.LABELS, id)
 }
 
-export async function getLabelsByBoard(boardId: string): Promise<Label[]> {
+export async function getLabelsByBoard(boardId: string): Promise<Array<Label>> {
   return getItemsByIndex<Label>(STORE_NAMES.LABELS, 'boardId', boardId)
 }
 
@@ -101,14 +101,14 @@ async function getCardLabelEntry(
   return entries.find((e) => e.labelId === labelId)
 }
 
-export async function getLabelsForCard(cardId: string): Promise<Label[]> {
+export async function getLabelsForCard(cardId: string): Promise<Array<Label>> {
   const entries = await getItemsByIndex<CardLabel>(
     STORE_NAMES.CARD_LABELS,
     'cardId',
     cardId,
   )
 
-  const labels: Label[] = []
+  const labels: Array<Label> = []
   for (const entry of entries) {
     const label = await getLabel(entry.labelId)
     if (label) labels.push(label)
@@ -116,7 +116,9 @@ export async function getLabelsForCard(cardId: string): Promise<Label[]> {
   return labels
 }
 
-export async function getCardsWithLabel(labelId: string): Promise<string[]> {
+export async function getCardsWithLabel(
+  labelId: string,
+): Promise<Array<string>> {
   const entries = await getItemsByIndex<CardLabel>(
     STORE_NAMES.CARD_LABELS,
     'labelId',

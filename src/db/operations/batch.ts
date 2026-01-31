@@ -5,12 +5,12 @@
 
 import {
   STORE_NAMES,
-  runTransaction,
-  txGet,
-  txGetAll,
   calculateInsertPosition,
   needsNormalization,
   normalizePositions,
+  runTransaction,
+  txGet,
+  txGetAll,
 } from '../core'
 import type { Card, List, PositionUpdate } from '../types'
 
@@ -19,7 +19,7 @@ import type { Card, List, PositionUpdate } from '../types'
  */
 export async function batchUpdatePositions(
   storeName: string,
-  updates: PositionUpdate[],
+  updates: Array<PositionUpdate>,
 ): Promise<void> {
   if (updates.length === 0) return
 

@@ -6,10 +6,10 @@
 import {
   STORE_NAMES,
   addItem,
-  getItem,
-  getItemsByIndex,
   deleteItem,
   generateId,
+  getItem,
+  getItemsByIndex,
   now,
 } from '../core'
 import type { Attachment } from '../types'
@@ -45,7 +45,7 @@ export async function getAttachment(
 
 export async function getAttachmentsByCard(
   cardId: string,
-): Promise<Attachment[]> {
+): Promise<Array<Attachment>> {
   const attachments = await getItemsByIndex<Attachment>(
     STORE_NAMES.ATTACHMENTS,
     'cardId',

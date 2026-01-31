@@ -4,17 +4,17 @@
  */
 
 import {
-  STORE_NAMES,
   POSITION_GAP,
+  STORE_NAMES,
   addItem,
+  generateId,
   getItem,
   getItemOrThrow,
   getItemsByIndex,
-  updateItem,
-  generateId,
   now,
+  updateItem,
 } from '../core'
-import type { List, CreateListInput } from '../types'
+import type { CreateListInput, List } from '../types'
 
 export async function createList(data: CreateListInput): Promise<List> {
   const existing = await getListsByBoard(data.boardId)
@@ -41,7 +41,7 @@ export async function getListOrThrow(id: string): Promise<List> {
   return getItemOrThrow<List>(STORE_NAMES.LISTS, id, 'List')
 }
 
-export async function getListsByBoard(boardId: string): Promise<List[]> {
+export async function getListsByBoard(boardId: string): Promise<Array<List>> {
   const lists = await getItemsByIndex<List>(
     STORE_NAMES.LISTS,
     'boardId',
@@ -50,7 +50,9 @@ export async function getListsByBoard(boardId: string): Promise<List[]> {
   return lists.sort((a, b) => a.position - b.position)
 }
 
-export async function getActiveListsByBoard(boardId: string): Promise<List[]> {
+export async function getActiveListsByBoard(
+  boardId: string,
+): Promise<Array<List>> {
   const lists = await getListsByBoard(boardId)
   return lists.filter((l) => !l.isArchived)
 }

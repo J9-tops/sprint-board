@@ -5,8 +5,8 @@
 
 import {
   getStore,
-  promisifyRequest,
   getTransaction,
+  promisifyRequest,
   promisifyTransaction,
 } from './helpers'
 import { DatabaseError, NotFoundError } from './errors'
@@ -40,7 +40,7 @@ export async function getItemOrThrow<T>(
 }
 
 /** Get all items from a store */
-export async function getAllItems<T>(storeName: string): Promise<T[]> {
+export async function getAllItems<T>(storeName: string): Promise<Array<T>> {
   const store = await getStore(storeName, 'readonly')
   const request = store.getAll()
   return promisifyRequest(request)
@@ -51,7 +51,7 @@ export async function getItemsByIndex<T>(
   storeName: string,
   indexName: string,
   value: IDBValidKey,
-): Promise<T[]> {
+): Promise<Array<T>> {
   const store = await getStore(storeName, 'readonly')
   const index = store.index(indexName)
   const request = index.getAll(value)
@@ -62,10 +62,10 @@ export async function getItemsByIndex<T>(
 export async function getItemsWithFilter<T>(
   storeName: string,
   filterFn: (item: T) => boolean,
-): Promise<T[]> {
+): Promise<Array<T>> {
   const store = await getStore(storeName, 'readonly')
   const request = store.openCursor()
-  const results: T[] = []
+  const results: Array<T> = []
 
   return new Promise((resolve, reject) => {
     request.onsuccess = () => {
@@ -112,7 +112,7 @@ export async function deleteItem(storeName: string, id: string): Promise<void> {
 /** Delete multiple items by their IDs */
 export async function deleteItems(
   storeName: string,
-  ids: string[],
+  ids: Array<string>,
 ): Promise<void> {
   const tx = await getTransaction(storeName, 'readwrite')
   const store = tx.objectStore(storeName)
@@ -125,7 +125,7 @@ export async function deleteItemsByIndex(
   storeName: string,
   indexName: string,
   value: IDBValidKey,
-): Promise<string[]> {
+): Promise<Array<string>> {
   const items = await getItemsByIndex<{ id: string }>(
     storeName,
     indexName,

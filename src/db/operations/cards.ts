@@ -4,15 +4,15 @@
  */
 
 import {
-  STORE_NAMES,
   POSITION_GAP,
+  STORE_NAMES,
   addItem,
+  generateId,
   getItem,
   getItemOrThrow,
   getItemsByIndex,
-  updateItem,
-  generateId,
   now,
+  updateItem,
 } from '../core'
 import type { Card, CreateCardInput } from '../types'
 
@@ -60,17 +60,19 @@ export async function getCardOrThrow(id: string): Promise<Card> {
   return getItemOrThrow<Card>(STORE_NAMES.CARDS, id, 'Card')
 }
 
-export async function getCardsByList(listId: string): Promise<Card[]> {
+export async function getCardsByList(listId: string): Promise<Array<Card>> {
   const cards = await getItemsByIndex<Card>(STORE_NAMES.CARDS, 'listId', listId)
   return cards.sort((a, b) => a.position - b.position)
 }
 
-export async function getActiveCardsByList(listId: string): Promise<Card[]> {
+export async function getActiveCardsByList(
+  listId: string,
+): Promise<Array<Card>> {
   const cards = await getCardsByList(listId)
   return cards.filter((c) => !c.isArchived)
 }
 
-export async function getCardsByBoard(boardId: string): Promise<Card[]> {
+export async function getCardsByBoard(boardId: string): Promise<Array<Card>> {
   const cards = await getItemsByIndex<Card>(
     STORE_NAMES.CARDS,
     'boardId',
