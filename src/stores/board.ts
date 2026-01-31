@@ -3,6 +3,11 @@ import type { BoardData, BoardStore } from '@/types/board'
 import { getBoardWithData } from '@/services/board.service'
 import { moveCardTransaction, moveListTransaction } from '@/db'
 import { createCard } from '@/services/card.service'
+import {
+  createList,
+  deleteList as deleteListService,
+  updateList as updateListService,
+} from '@/services/list.service'
 
 const DEFAULT_BOARD_DATA: BoardData = {
   version: '1.0.0',
@@ -123,6 +128,63 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
       })
     } catch (e) {
       console.error('Failed to add card:', e)
+    }
+  },
+
+  addList: async (name) => {
+    const { boardData, currentBoardId } = get()
+    if (!currentBoardId) return
+
+    try {
+      const newList = await createList(currentBoardId, name)
+
+      set({
+        boardData: {
+          ...boardData,
+          lists: [
+            ...boardData.lists,
+            { id: newList.id, title: newList.name, cards: [] },
+          ],
+        },
+      })
+    } catch (e) {
+      console.error('Failed to add list:', e)
+    }
+  },
+
+  updateList: async (listId, name) => {
+    const { boardData } = get()
+
+    try {
+      await updateListService(listId, { name })
+
+      set({
+        boardData: {
+          ...boardData,
+          lists: boardData.lists.map((l) =>
+            l.id === listId ? { ...l, title: name } : l,
+          ),
+        },
+      })
+    } catch (e) {
+      console.error('Failed to update list:', e)
+    }
+  },
+
+  deleteList: async (listId) => {
+    const { boardData } = get()
+
+    try {
+      await deleteListService(listId)
+
+      set({
+        boardData: {
+          ...boardData,
+          lists: boardData.lists.filter((l) => l.id !== listId),
+        },
+      })
+    } catch (e) {
+      console.error('Failed to delete list:', e)
     }
   },
 }))

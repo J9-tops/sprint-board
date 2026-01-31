@@ -29,16 +29,7 @@ export function DraggableCard({ card, listId }: DraggableCardProps) {
   }
 
   return (
-    <motion.div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      layout
-      transition={{ duration: 0.2 }}
-    >
+    <motion.div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <KanbanCard {...card} />
     </motion.div>
   )

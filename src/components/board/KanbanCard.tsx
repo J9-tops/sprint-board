@@ -32,7 +32,7 @@ export function KanbanCard({
   topBorderColor,
 }: KanbanCardProps) {
   return (
-    <button className="w-full h-fit text-left group bg-card border border-border/40 rounded-sm shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300 cursor-pointer overflow-hidden active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-primary outline-none relative">
+    <button className="w-full h-fit text-left group bg-card border border-border/40 rounded-sm shadow-sm hover:shadow-md hover:border-primary/40 transition-[box-shadow,border-color] duration-300 cursor-pointer overflow-hidden active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-primary outline-none relative [&::-webkit-scrollbar]:hidden">
       {topBorderColor && (
         <div
           className={cn('h-1.5 w-full absolute top-0 left-0', topBorderColor)}
@@ -41,7 +41,7 @@ export function KanbanCard({
       {coverImage && (
         <div
           className={cn(
-            'h-32 w-full overflow-hidden truncate',
+            'h-32 w-full overflow-hidden',
             topBorderColor && 'mt-1.5',
           )}
         >
@@ -55,7 +55,10 @@ export function KanbanCard({
       )}
 
       <div
-        className={cn('p-4 py-2 space-y-3', topBorderColor && !coverImage && 'pt-6')}
+        className={cn(
+          'p-4 py-2 space-y-3',
+          topBorderColor && !coverImage && 'pt-6',
+        )}
       >
         {labels && labels.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
@@ -112,7 +115,11 @@ export function KanbanCard({
 
               <div className="flex items-center gap-2.5">
                 {hasDescription && (
-                  <AlignLeft size={13} strokeWidth={2.5} className="opacity-60" />
+                  <AlignLeft
+                    size={13}
+                    strokeWidth={2.5}
+                    className="opacity-60"
+                  />
                 )}
                 {checklist && (
                   <div

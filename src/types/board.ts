@@ -40,6 +40,9 @@ export interface BoardStore {
   ) => Promise<void>
   reorderLists: (sourceListId: string, targetListId: string) => Promise<void>
   addCard: (listId: string, title: string) => Promise<void>
+  addList: (name: string) => Promise<void>
+  updateList: (listId: string, name: string) => Promise<void>
+  deleteList: (listId: string) => Promise<void>
 }
 
 function formatCard(
