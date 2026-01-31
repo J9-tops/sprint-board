@@ -3,33 +3,31 @@
  */
 
 import {
-  createCard as dbCreateCard,
-  quickCreateCard,
-  getCard,
-  getCardOrThrow,
-  getCardsByList,
-  getActiveCardsByList,
-  getCardsByBoard,
-  updateCard as dbUpdateCard,
-  archiveCard as dbArchiveCard,
-  restoreCard as dbRestoreCard,
-  setCardDueDate,
-  toggleDueDateComplete,
-  cascadeDeleteCard,
-  getLabelsForCard,
-  getChecklistsByCard,
-  getItemsByChecklist,
-  getAttachmentsByCard,
-  moveCardTransaction,
-  batchUpdatePositions,
+  POSITION_GAP,
   addLabelToCard,
+  batchUpdatePositions,
+  cascadeDeleteCard,
   createChecklist,
   createChecklistItem,
-  POSITION_GAP,
-  type Card,
-  type CardWithDetails,
-  type ChecklistWithItems,
+  archiveCard as dbArchiveCard,
+  createCard as dbCreateCard,
+  restoreCard as dbRestoreCard,
+  updateCard as dbUpdateCard,
+  getActiveCardsByList,
+  getAttachmentsByCard,
+  getCard,
+  getCardOrThrow,
+  getCardsByBoard,
+  getCardsByList,
+  getChecklistsByCard,
+  getItemsByChecklist,
+  getLabelsForCard,
+  moveCardTransaction,
+  quickCreateCard,
+  setCardDueDate,
+  toggleDueDateComplete,
 } from '../db'
+import type { Card, CardWithDetails, ChecklistWithItems } from '../db'
 
 // ============================================================================
 // Card Operations
@@ -72,7 +70,7 @@ export async function getCardWithDetails(
   const checklists = await getChecklistsByCard(cardId)
 
   // Get items for each checklist
-  const checklistsWithItems: ChecklistWithItems[] = await Promise.all(
+  const checklistsWithItems: Array<ChecklistWithItems> = await Promise.all(
     checklists.map(async (checklist) => {
       const items = await getItemsByChecklist(checklist.id)
       return {
@@ -190,7 +188,7 @@ export async function moveCard(
  */
 export async function reorderCards(
   _listId: string,
-  orderedCardIds: string[],
+  orderedCardIds: Array<string>,
 ): Promise<void> {
   const updates = orderedCardIds.map((id, index) => ({
     id,

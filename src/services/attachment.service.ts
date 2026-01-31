@@ -4,15 +4,15 @@
  */
 
 import {
+  FileSizeError,
+  IMAGE_COMPRESSION_THRESHOLD,
+  MAX_FILE_SIZE,
   createAttachment as dbCreateAttachment,
+  deleteAttachment as dbDeleteAttachment,
   getAttachment,
   getAttachmentsByCard,
-  deleteAttachment as dbDeleteAttachment,
-  MAX_FILE_SIZE,
-  IMAGE_COMPRESSION_THRESHOLD,
-  FileSizeError,
-  type Attachment,
 } from '../db'
+import type { Attachment } from '../db'
 
 // ============================================================================
 // Attachment Operations

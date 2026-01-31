@@ -4,28 +4,27 @@
  */
 
 import {
-  createBoard as dbCreateBoard,
+  BOARD_BACKGROUNDS,
+  addLabelToCard,
+  cascadeDeleteBoard,
+  createCard,
+  createLabel,
   createList,
-  getBoardOrThrow,
+  archiveBoard as dbArchiveBoard,
+  createBoard as dbCreateBoard,
+  restoreBoard as dbRestoreBoard,
+  updateBoard as dbUpdateBoard,
   getActiveBoards,
   getArchivedBoards,
-  getStarredBoards,
-  updateBoard as dbUpdateBoard,
-  archiveBoard as dbArchiveBoard,
-  restoreBoard as dbRestoreBoard,
-  toggleBoardStar,
-  cascadeDeleteBoard,
-  getListsByBoard,
+  getBoardOrThrow,
   getCardsByBoard,
   getLabelsByBoard,
-  createLabel,
-  createCard,
-  addLabelToCard,
   getLabelsForCard,
-  type Board,
-  type BoardWithData,
-  BOARD_BACKGROUNDS,
+  getListsByBoard,
+  getStarredBoards,
+  toggleBoardStar,
 } from '../db'
+import type { Board, BoardWithData } from '../db'
 
 // ============================================================================
 // Board Operations
@@ -105,7 +104,7 @@ export async function getBoardWithData(
 /**
  * Get all boards for the dashboard.
  */
-export async function getBoards(): Promise<Board[]> {
+export async function getBoards(): Promise<Array<Board>> {
   return getActiveBoards()
 }
 

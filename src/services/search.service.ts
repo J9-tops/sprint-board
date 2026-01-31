@@ -3,18 +3,17 @@
  */
 
 import {
-  searchCards as dbSearchCards,
-  getOverdueCards,
-  getCardsDueSoon,
-  getAllBoards,
-  getActiveBoards,
-  getLabelsForCard,
-  getItemsWithFilter,
-  getAttachmentsByCard,
   STORE_NAMES,
-  type Card,
-  type Board,
+  searchCards as dbSearchCards,
+  getActiveBoards,
+  getAllBoards,
+  getAttachmentsByCard,
+  getCardsDueSoon,
+  getItemsWithFilter,
+  getLabelsForCard,
+  getOverdueCards,
 } from '../db'
+import type { Board, Card } from '../db'
 
 // ============================================================================
 // Search Types
@@ -32,7 +31,7 @@ export interface SearchResult {
 }
 
 export interface SearchFilters {
-  labels?: string[]
+  labels?: Array<string>
   dueDateStatus?: 'overdue' | 'soon' | 'none'
   hasAttachments?: boolean
   hasChecklist?: boolean
@@ -48,7 +47,7 @@ export interface SearchFilters {
 export async function searchCards(
   query: string,
   boardId?: string,
-): Promise<SearchResult[]> {
+): Promise<Array<SearchResult>> {
   if (!query.trim()) return []
 
   const cards = await dbSearchCards(query, boardId)
@@ -80,7 +79,7 @@ export async function searchCards(
 /**
  * Search boards by name.
  */
-export async function searchBoards(query: string): Promise<Board[]> {
+export async function searchBoards(query: string): Promise<Array<Board>> {
   if (!query.trim()) return []
 
   const boards = await getActiveBoards()
@@ -96,7 +95,9 @@ export async function searchBoards(query: string): Promise<Board[]> {
 /**
  * Combined search across cards and boards.
  */
-export async function globalSearch(query: string): Promise<SearchResult[]> {
+export async function globalSearch(
+  query: string,
+): Promise<Array<SearchResult>> {
   if (!query.trim()) return []
 
   const [cardResults, boards] = await Promise.all([
@@ -104,7 +105,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
     searchBoards(query),
   ])
 
-  const boardResults: SearchResult[] = boards.map((board) => ({
+  const boardResults: Array<SearchResult> = boards.map((board) => ({
     type: 'board' as const,
     id: board.id,
     title: board.name,
@@ -136,16 +137,16 @@ export { getCardsDueSoon }
  * Get cards with specific labels.
  */
 export async function getCardsWithLabels(
-  labelIds: string[],
+  labelIds: Array<string>,
   boardId?: string,
-): Promise<Card[]> {
+): Promise<Array<Card>> {
   const cards = await getItemsWithFilter<Card>(STORE_NAMES.CARDS, (card) => {
     if (card.isArchived) return false
     if (boardId && card.boardId !== boardId) return false
     return true
   })
 
-  const matching: Card[] = []
+  const matching: Array<Card> = []
 
   for (const card of cards) {
     const labels = await getLabelsForCard(card.id)
@@ -164,14 +165,14 @@ export async function getCardsWithLabels(
  */
 export async function getCardsWithAttachments(
   boardId?: string,
-): Promise<Card[]> {
+): Promise<Array<Card>> {
   const cards = await getItemsWithFilter<Card>(STORE_NAMES.CARDS, (card) => {
     if (card.isArchived) return false
     if (boardId && card.boardId !== boardId) return false
     return true
   })
 
-  const withAttachments: Card[] = []
+  const withAttachments: Array<Card> = []
 
   for (const card of cards) {
     const attachments = await getAttachmentsByCard(card.id)
@@ -188,7 +189,7 @@ export async function getCardsWithAttachments(
  */
 export async function getRecentlyModifiedCards(
   limit: number = 10,
-): Promise<Card[]> {
+): Promise<Array<Card>> {
   const cards = await getItemsWithFilter<Card>(
     STORE_NAMES.CARDS,
     (card) => !card.isArchived,
@@ -234,10 +235,10 @@ function createSnippet(
 export function highlightMatch(
   text: string,
   query: string,
-): { text: string; isMatch: boolean }[] {
+): Array<{ text: string; isMatch: boolean }> {
   if (!query.trim()) return [{ text, isMatch: false }]
 
-  const parts: { text: string; isMatch: boolean }[] = []
+  const parts: Array<{ text: string; isMatch: boolean }> = []
   const lowerText = text.toLowerCase()
   const lowerQuery = query.toLowerCase()
 

@@ -3,20 +3,19 @@
  */
 
 import {
+  LABEL_COLORS,
+  addLabelToCard,
   createLabel as dbCreateLabel,
+  deleteLabel as dbDeleteLabel,
+  updateLabel as dbUpdateLabel,
+  getCardsWithLabel,
   getLabel,
   getLabelsByBoard,
-  updateLabel as dbUpdateLabel,
-  deleteLabel as dbDeleteLabel,
-  addLabelToCard,
+  getLabelsForCard,
   removeLabelFromCard,
   toggleLabelOnCard,
-  getLabelsForCard,
-  getCardsWithLabel,
-  LABEL_COLORS,
-  type Label,
-  type LabelColor,
 } from '../db'
+import type { Label, LabelColor } from '../db'
 
 // ============================================================================
 // Label Operations
@@ -92,7 +91,7 @@ export { toggleLabelOnCard }
 /**
  * Get available label colors.
  */
-export function getAvailableColors(): readonly LabelColor[] {
+export function getAvailableColors(): ReadonlyArray<LabelColor> {
   return LABEL_COLORS
 }
 

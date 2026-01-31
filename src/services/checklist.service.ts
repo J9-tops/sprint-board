@@ -4,21 +4,19 @@
 
 import {
   createChecklist as dbCreateChecklist,
-  getChecklist,
-  getChecklistsByCard,
-  updateChecklist as dbUpdateChecklist,
-  deleteChecklist as dbDeleteChecklist,
   createChecklistItem as dbCreateChecklistItem,
-  getChecklistItem,
-  getItemsByChecklist,
-  updateChecklistItem as dbUpdateChecklistItem,
-  toggleChecklistItem,
+  deleteChecklist as dbDeleteChecklist,
   deleteChecklistItem as dbDeleteChecklistItem,
+  updateChecklist as dbUpdateChecklist,
+  updateChecklistItem as dbUpdateChecklistItem,
+  getChecklist,
+  getChecklistItem,
+  getChecklistsByCard,
+  getItemsByChecklist,
   now,
-  type Checklist,
-  type ChecklistItem,
-  type ChecklistWithItems,
+  toggleChecklistItem,
 } from '../db'
+import type { Checklist, ChecklistItem, ChecklistWithItems } from '../db'
 
 // ============================================================================
 // Checklist Operations
@@ -70,7 +68,7 @@ export async function getChecklistWithItems(
  */
 export async function getChecklistsWithItems(
   cardId: string,
-): Promise<ChecklistWithItems[]> {
+): Promise<Array<ChecklistWithItems>> {
   const checklists = await getChecklistsByCard(cardId)
 
   return Promise.all(
@@ -232,7 +230,7 @@ export function calculateChecklistProgress(checklist: ChecklistWithItems): {
  * Calculate total progress for all checklists on a card.
  */
 export function calculateCardChecklistProgress(
-  checklists: ChecklistWithItems[],
+  checklists: Array<ChecklistWithItems>,
 ): { completed: number; total: number; percent: number } {
   const total = checklists.reduce((sum, cl) => sum + cl.items.length, 0)
   const completed = checklists.reduce(

@@ -4,16 +4,14 @@
 
 import {
   calculateStorageUsage,
-  getStorageByBoard,
-  formatBytes,
-  getStorageWarningLevel,
-  getArchivedBoards,
   cascadeDeleteBoard,
   cascadeDeleteCard,
-  type StorageBreakdown,
-  type BoardStorageInfo,
-  type Card,
+  formatBytes,
+  getArchivedBoards,
+  getStorageByBoard,
+  getStorageWarningLevel,
 } from '../db'
+import type { BoardStorageInfo, Card, StorageBreakdown } from '../db'
 
 // Re-export utility functions
 export { formatBytes, getStorageWarningLevel }
@@ -32,7 +30,9 @@ export async function getStorageOverview(): Promise<StorageBreakdown> {
 /**
  * Get storage usage by board.
  */
-export async function getBoardStorageBreakdown(): Promise<BoardStorageInfo[]> {
+export async function getBoardStorageBreakdown(): Promise<
+  Array<BoardStorageInfo>
+> {
   return getStorageByBoard()
 }
 
@@ -43,8 +43,8 @@ export async function getBoardStorageBreakdown(): Promise<BoardStorageInfo[]> {
 interface StorageAnalysis {
   overview: StorageBreakdown
   warningLevel: 'ok' | 'warning' | 'critical'
-  largestBoards: BoardStorageInfo[]
-  recommendations: string[]
+  largestBoards: Array<BoardStorageInfo>
+  recommendations: Array<string>
 }
 
 /**
@@ -55,7 +55,7 @@ export async function analyzeStorage(): Promise<StorageAnalysis> {
   const warningLevel = getStorageWarningLevel(overview.percentUsed)
   const boardStorage = await getStorageByBoard()
 
-  const recommendations: string[] = []
+  const recommendations: Array<string> = []
 
   // Generate recommendations
   if (warningLevel === 'critical') {

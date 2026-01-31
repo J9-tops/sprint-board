@@ -3,25 +3,24 @@
  */
 
 import {
+  POSITION_GAP,
+  batchUpdatePositions,
+  cascadeDeleteList,
+  createCard,
+  archiveList as dbArchiveList,
   createList as dbCreateList,
+  restoreList as dbRestoreList,
+  updateList as dbUpdateList,
+  getActiveCardsByList,
+  getActiveListsByBoard,
   getList,
   getListOrThrow,
   getListsByBoard,
-  getActiveListsByBoard,
-  updateList as dbUpdateList,
-  archiveList as dbArchiveList,
-  restoreList as dbRestoreList,
-  toggleListCollapse,
-  cascadeDeleteList,
-  getActiveCardsByList,
-  createCard,
-  updateCard,
   moveListTransaction,
-  batchUpdatePositions,
-  POSITION_GAP,
-  type List,
-  type ListWithCards,
+  toggleListCollapse,
+  updateCard,
 } from '../db'
+import type { List, ListWithCards } from '../db'
 
 // ============================================================================
 // List Operations
@@ -178,7 +177,7 @@ export async function copyList(
  */
 export async function reorderLists(
   _boardId: string,
-  orderedListIds: string[],
+  orderedListIds: Array<string>,
 ): Promise<void> {
   const updates = orderedListIds.map((id, index) => ({
     id,

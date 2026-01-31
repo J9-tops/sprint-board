@@ -3,26 +3,25 @@
  */
 
 import {
-  getAllBoards,
-  getListsByBoard,
-  getCardsByBoard,
-  getLabelsByBoard,
-  getChecklistsByCard,
-  getItemsByChecklist,
-  getAttachmentsByCard,
+  addLabelToCard,
+  createAttachment,
   createBoard,
-  createList,
   createCard,
-  createLabel,
   createChecklist,
   createChecklistItem,
-  createAttachment,
-  addLabelToCard,
-  getLabelsForCard,
+  createLabel,
+  createList,
+  getAllBoards,
+  getAttachmentsByCard,
   getBoardOrThrow,
-  type Board,
-  type Card,
+  getCardsByBoard,
+  getChecklistsByCard,
+  getItemsByChecklist,
+  getLabelsByBoard,
+  getLabelsForCard,
+  getListsByBoard,
 } from '../db'
+import type { Board, Card } from '../db'
 
 // ============================================================================
 // Export Types
@@ -37,7 +36,7 @@ interface ExportedChecklistItem {
 interface ExportedChecklist {
   name: string
   position: number
-  items: ExportedChecklistItem[]
+  items: Array<ExportedChecklistItem>
 }
 
 interface ExportedAttachment {
@@ -55,15 +54,15 @@ interface ExportedCard {
   coverType: Card['coverType']
   coverValue: string
   dueDate: number | null
-  labels: string[] // Label names
-  checklists: ExportedChecklist[]
-  attachments: ExportedAttachment[]
+  labels: Array<string> // Label names
+  checklists: Array<ExportedChecklist>
+  attachments: Array<ExportedAttachment>
 }
 
 interface ExportedList {
   name: string
   position: number
-  cards: ExportedCard[]
+  cards: Array<ExportedCard>
 }
 
 interface ExportedLabel {
@@ -77,8 +76,8 @@ interface ExportedBoard {
   name: string
   description: string
   background: string
-  labels: ExportedLabel[]
-  lists: ExportedList[]
+  labels: Array<ExportedLabel>
+  lists: Array<ExportedList>
 }
 
 // ============================================================================
@@ -94,18 +93,18 @@ export async function exportBoard(boardId: string): Promise<ExportedBoard> {
   const cards = await getCardsByBoard(boardId)
   const labels = await getLabelsByBoard(boardId)
 
-  const exportedLists: ExportedList[] = []
+  const exportedLists: Array<ExportedList> = []
 
   for (const list of lists.filter((l) => !l.isArchived)) {
     const listCards = cards.filter((c) => c.listId === list.id && !c.isArchived)
-    const exportedCards: ExportedCard[] = []
+    const exportedCards: Array<ExportedCard> = []
 
     for (const card of listCards) {
       const cardLabels = await getLabelsForCard(card.id)
       const checklists = await getChecklistsByCard(card.id)
       const attachments = await getAttachmentsByCard(card.id)
 
-      const exportedChecklists: ExportedChecklist[] = []
+      const exportedChecklists: Array<ExportedChecklist> = []
       for (const checklist of checklists) {
         const items = await getItemsByChecklist(checklist.id)
         exportedChecklists.push({
@@ -177,7 +176,7 @@ export async function downloadBoardAsJson(boardId: string): Promise<void> {
 /**
  * Export all boards.
  */
-export async function exportAllBoards(): Promise<ExportedBoard[]> {
+export async function exportAllBoards(): Promise<Array<ExportedBoard>> {
   const boards = await getAllBoards()
   return Promise.all(
     boards.filter((b) => !b.isArchived).map((b) => exportBoard(b.id)),
