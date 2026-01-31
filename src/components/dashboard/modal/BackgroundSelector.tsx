@@ -40,6 +40,7 @@ export function BackgroundSelector({
         <div className="grid grid-cols-5 gap-2">
           {colors.map((color) => (
             <button
+              type="button"
               key={color.name}
               onClick={() => onSelect(color.value)}
               className={cn(
@@ -63,6 +64,7 @@ export function BackgroundSelector({
         <div className="grid grid-cols-5 gap-2">
           {gradients.map((gradient) => (
             <button
+              type="button"
               key={gradient.name}
               onClick={() => onSelect(gradient.value)}
               className={cn(
