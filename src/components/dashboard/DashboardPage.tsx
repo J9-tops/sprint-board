@@ -7,6 +7,7 @@ import type { Board } from '@/db/types/entities'
 import { useModalStore } from '@/stores/modals'
 import {
   createBoard,
+  deleteBoard,
   getBoards,
   getStarredBoards,
   toggleStar,
@@ -66,6 +67,16 @@ export function DashboardPage() {
     }
   }
 
+  const handleDelete = async (boardId: string) => {
+    try {
+      await deleteBoard(boardId)
+      setStarredBoards(starredBoards.filter((b) => b.id !== boardId))
+      setAllBoards(allBoards.filter((b) => b.id !== boardId))
+    } catch (e) {
+      console.error('Failed to delete board:', e)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -95,6 +106,7 @@ export function DashboardPage() {
                 background={board.background}
                 starred={board.isStarred}
                 onToggleStar={() => handleToggleStar(board.id, board.isStarred)}
+                onDelete={() => handleDelete(board.id)}
               />
             </div>
           ))}
@@ -121,6 +133,7 @@ export function DashboardPage() {
                 background={board.background}
                 starred={board.isStarred}
                 onToggleStar={() => handleToggleStar(board.id, board.isStarred)}
+                onDelete={() => handleDelete(board.id)}
               />
             </div>
           ))}
