@@ -33,13 +33,18 @@ export function DraggableList({ list }: DraggableListProps) {
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} {...attributes}>
       <SortableContext
         items={list.cards.map((c) => c.id)}
         strategy={verticalListSortingStrategy}
       >
         <motion.div layout transition={{ duration: 0.3 }}>
-          <KanbanList title={list.title} cardCount={list.cards.length}>
+          <KanbanList
+            title={list.title}
+            cardCount={list.cards.length}
+            listId={list.id}
+            dragHandleProps={listeners}
+          >
             {list.cards.map((card) => (
               <DraggableCard key={card.id} card={card} listId={list.id} />
             ))}

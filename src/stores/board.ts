@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { BoardData, BoardStore } from '@/types/board'
 import { getBoardWithData } from '@/services/board.service'
 import { moveCardTransaction, moveListTransaction } from '@/db'
+import { createCard } from '@/services/card.service'
 
 const DEFAULT_BOARD_DATA: BoardData = {
   version: '1.0.0',
@@ -97,6 +98,31 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
       })
     } catch (e) {
       console.error('Failed to reorder lists:', e)
+    }
+  },
+
+  addCard: async (listId, title) => {
+    const { boardData, currentBoardId } = get()
+    if (!currentBoardId) return
+
+    const list = boardData.lists.find((l) => l.id === listId)
+    if (!list) return
+
+    try {
+      const newCard = await createCard(listId, currentBoardId, title)
+
+      set({
+        boardData: {
+          ...boardData,
+          lists: boardData.lists.map((l) =>
+            l.id === listId
+              ? { ...l, cards: [...l.cards, { id: newCard.id, title }] }
+              : l,
+          ),
+        },
+      })
+    } catch (e) {
+      console.error('Failed to add card:', e)
     }
   },
 }))
