@@ -10,6 +10,7 @@ interface BoardCardProps {
   background?: string
   label?: string
   labelColor?: string
+  onToggleStar?: () => void
 }
 
 export function BoardCard({
@@ -19,7 +20,14 @@ export function BoardCard({
   background,
   label,
   labelColor,
+  onToggleStar,
 }: BoardCardProps) {
+  const handleStarClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onToggleStar?.()
+  }
+
   return (
     <Link
       to="/board/$boardId"
@@ -42,10 +50,7 @@ export function BoardCard({
             {title}
           </h3>
           <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-            }}
+            onClick={handleStarClick}
             className={cn(
               'text-white/80 hover:text-white transition-all p-1.5 rounded-xl hover:bg-white/10 outline-none transform active:scale-90',
               starred &&

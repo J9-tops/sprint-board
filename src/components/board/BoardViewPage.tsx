@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from '@tanstack/react-router'
+import { useLocation, useParams } from '@tanstack/react-router'
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import { Layout } from 'lucide-react'
 import { useTabs } from '../layout/TabsContext'
@@ -7,82 +7,53 @@ import { BoardHeader } from './BoardHeader'
 import { BoardListsContainer } from './BoardListsContainer'
 import { BoardDragOverlay } from './BoardDragOverlay'
 import type { DragEndEvent } from '@dnd-kit/core'
-import type { BoardData, CardData } from '@/types/board'
 import { useBoardStore } from '@/stores/board'
-import { BOARD_MOCK_DATA } from '@/lib/mock-data'
-
-function convertMockToCardData(
-  card: any,
-  index: number,
-  listId: string,
-): CardData {
-  return {
-    id: `${listId}-card-${index}`,
-    title: card.title,
-    labels: card.labels,
-    dueDate: card.dueDate,
-    checklist: card.checklist,
-    attachmentCount: card.attachmentCount,
-    hasDescription: card.hasDescription,
-    coverImage: card.coverImage,
-    topBorderColor: card.color,
-  }
-}
-
-function getInitialBoardData(): BoardData {
-  return {
-    version: '1.0.0',
-    lists: [
-      {
-        id: 'backlog',
-        title: 'Backlog',
-        cards: BOARD_MOCK_DATA.backlog.map((card, i) =>
-          convertMockToCardData(card, i, 'backlog'),
-        ),
-      },
-      {
-        id: 'in-progress',
-        title: 'In Progress',
-        cards: BOARD_MOCK_DATA.inProgress.map((card, i) =>
-          convertMockToCardData(card, i, 'in-progress'),
-        ),
-      },
-      {
-        id: 'review',
-        title: 'Review',
-        cards: BOARD_MOCK_DATA.review.map((card, i) =>
-          convertMockToCardData(card, i, 'review'),
-        ),
-      },
-      {
-        id: 'done',
-        title: 'Done',
-        cards: BOARD_MOCK_DATA.done.map((card, i) =>
-          convertMockToCardData(card, i, 'done'),
-        ),
-      },
-    ],
-  }
-}
+import { getBoardOrThrow } from '@/db'
 
 export function BoardViewPage() {
+  const { boardId } = useParams({ from: '/board/$boardId' })
   const { addTab } = useTabs()
   const location = useLocation()
   const reorderCards = useBoardStore((state) => state.reorderCards)
   const reorderLists = useBoardStore((state) => state.reorderLists)
   const boardData = useBoardStore((state) => state.boardData)
+  const loadBoard = useBoardStore((state) => state.loadBoard)
+  const isLoading = useBoardStore((state) => state.isLoading)
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [boardTitle, setBoardTitle] = useState<string>('Board')
+  const [isBoardStarred, setIsBoardStarred] = useState<boolean>(false)
 
   useEffect(() => {
+    if (boardId) {
+      loadBoard(boardId)
+    }
+  }, [boardId, loadBoard])
+
+  useEffect(() => {
+    const loadBoardInfo = async () => {
+      if (!boardId) return
+      try {
+        const board = await getBoardOrThrow(boardId)
+        setBoardTitle(board.name)
+        setIsBoardStarred(board.isStarred)
+      } catch (e) {
+        console.error('Failed to load board info:', e)
+      }
+    }
+
+    loadBoardInfo()
+  }, [boardId])
+
+  useEffect(() => {
+    if (boardData.lists.length === 0) return
+
     addTab({
-      id: 'board-view',
-      title: 'Product Roadmap 2024',
+      id: boardId || 'board-view',
+      title: boardTitle,
       path: location.pathname,
       icon: <Layout size={13} />,
     })
-
-    useBoardStore.setState({ boardData: getInitialBoardData() })
-  }, [addTab, location.pathname])
+  }, [addTab, location.pathname, boardData, boardId, boardTitle])
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
@@ -111,9 +82,25 @@ export function BoardViewPage() {
     setActiveId(null)
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-muted-foreground">Loading board...</div>
+      </div>
+    )
+  }
+
+  if (boardData.lists.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-muted-foreground">Board not found</div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col h-full overflow-hidden bg-muted/10">
-      <BoardHeader title="Product Roadmap 2024" isStarred />
+      <BoardHeader title={boardTitle} isStarred={isBoardStarred} />
       <DndContext
         collisionDetection={closestCenter}
         onDragStart={(e) => setActiveId(e.active.id as string)}

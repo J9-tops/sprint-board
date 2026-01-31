@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   ArrowDownWideNarrow,
   ChevronRight,
@@ -12,6 +13,7 @@ import {
 import { useTheme } from 'next-themes'
 import { useNavigate } from '@tanstack/react-router'
 import { FilterPanel } from './FilterPanel'
+import type { Board } from '@/db/types/entities'
 import { Button } from '@/components/ui/button'
 import {
   Popover,
@@ -32,7 +34,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
-import { ALL_BOARDS, STARRED_BOARDS } from '@/lib/mock-data'
+import { getBoards, getStarredBoards } from '@/services/board.service'
 
 interface BoardHeaderProps {
   title: string
@@ -43,6 +45,25 @@ export function BoardHeader({ title, isStarred }: BoardHeaderProps) {
   const { toggleSidebar } = useLayout()
   const { theme, setTheme } = useTheme()
   const navigate = useNavigate()
+  const [starredBoards, setStarredBoards] = useState<Array<Board>>([])
+  const [allBoards, setAllBoards] = useState<Array<Board>>([])
+
+  useEffect(() => {
+    const loadBoards = async () => {
+      try {
+        const [starred, all] = await Promise.all([
+          getStarredBoards(),
+          getBoards(),
+        ])
+        setStarredBoards(starred)
+        setAllBoards(all)
+      } catch (e) {
+        console.error('Failed to load boards:', e)
+      }
+    }
+
+    loadBoards()
+  }, [])
 
   return (
     <div className="h-12 bg-background/95 backdrop-blur border-b flex items-center justify-between px-4 shrink-0 gap-4">
@@ -65,24 +86,24 @@ export function BoardHeader({ title, isStarred }: BoardHeaderProps) {
           </ContextMenuTrigger>
           <ContextMenuContent className="w-56">
             <ContextMenuLabel>Starred Boards</ContextMenuLabel>
-            {STARRED_BOARDS.map((board) => (
+            {starredBoards.map((board) => (
               <ContextMenuItem
                 key={board.id}
                 onClick={() => navigate({ to: `/board/${board.id}` })}
               >
-                <span className="truncate">{board.title}</span>
+                <span className="truncate">{board.name}</span>
               </ContextMenuItem>
             ))}
             <ContextMenuSeparator />
             <ContextMenuSub>
               <ContextMenuSubTrigger>All Boards</ContextMenuSubTrigger>
               <ContextMenuSubContent className="w-56">
-                {ALL_BOARDS.map((board) => (
+                {allBoards.map((board) => (
                   <ContextMenuItem
                     key={board.id}
                     onClick={() => navigate({ to: `/board/${board.id}` })}
                   >
-                    <span className="truncate">{board.title}</span>
+                    <span className="truncate">{board.name}</span>
                   </ContextMenuItem>
                 ))}
               </ContextMenuSubContent>

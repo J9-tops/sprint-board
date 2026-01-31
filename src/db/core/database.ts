@@ -47,6 +47,7 @@ function createStores(db: IDBDatabase): void {
   if (!db.objectStoreNames.contains(STORE_NAMES.LISTS)) {
     const store = db.createObjectStore(STORE_NAMES.LISTS, { keyPath: 'id' })
     store.createIndex('boardId', 'boardId', { unique: false })
+    store.createIndex('isArchived', 'isArchived', { unique: false })
     store.createIndex('position', 'position', { unique: false })
   }
 

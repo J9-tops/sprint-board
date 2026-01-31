@@ -1,24 +1,77 @@
+import { useEffect, useState } from 'react'
 import { LayoutGrid, Star } from 'lucide-react'
-import { useState } from 'react'
 import { BoardSection } from './BoardSection'
 import { BoardCard } from './BoardCard'
 import { CreateBoardCard } from './CreateBoardCard'
+import type { Board } from '@/db/types/entities'
 import { useModalStore } from '@/stores/modals'
-import { ALL_BOARDS, STARRED_BOARDS } from '@/lib/mock-data'
+import {
+  createBoard,
+  getBoards,
+  getStarredBoards,
+  toggleStar,
+} from '@/services/board.service'
 
 export function DashboardPage() {
-  const [starredBoards] = useState(STARRED_BOARDS)
-  const [allBoards, setAllBoards] = useState(ALL_BOARDS)
+  const [starredBoards, setStarredBoards] = useState<Array<Board>>([])
+  const [allBoards, setAllBoards] = useState<Array<Board>>([])
+  const [isLoading, setIsLoading] = useState(true)
   const { openModal } = useModalStore()
 
-  const handleCreateBoard = (data: { title: string; background: string }) => {
-    const newBoard = {
-      id: Math.random().toString(36).substr(2, 9),
-      title: data.title,
-      background: data.background,
-      label: 'PERSONAL',
+  useEffect(() => {
+    const loadBoards = async () => {
+      try {
+        const [starred, all] = await Promise.all([
+          getStarredBoards(),
+          getBoards(),
+        ])
+        setStarredBoards(starred)
+        setAllBoards(all)
+      } catch (e) {
+        console.error('Failed to load boards:', e)
+      } finally {
+        setIsLoading(false)
+      }
     }
+
+    loadBoards()
+  }, [])
+
+  const handleCreateBoard = async (data: {
+    title: string
+    background: string
+  }) => {
+    const newBoard = await createBoard(data.title, data.background)
     setAllBoards([newBoard, ...allBoards])
+  }
+
+  const handleToggleStar = async (boardId: string, currentStarred: boolean) => {
+    try {
+      await toggleStar(boardId)
+      if (currentStarred) {
+        setStarredBoards(starredBoards.filter((b) => b.id !== boardId))
+      } else {
+        const board = allBoards.find((b) => b.id === boardId)
+        if (board) {
+          setStarredBoards([...starredBoards, board])
+        }
+      }
+      setAllBoards(
+        allBoards.map((b) =>
+          b.id === boardId ? { ...b, isStarred: !b.isStarred } : b,
+        ),
+      )
+    } catch (e) {
+      console.error('Failed to toggle star:', e)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-muted-foreground">Loading boards...</div>
+      </div>
+    )
   }
 
   return (
@@ -29,8 +82,21 @@ export function DashboardPage() {
           icon={Star}
           iconColor="text-yellow-500"
         >
+          {starredBoards.length === 0 && (
+            <div className="col-span-full text-center text-muted-foreground py-8">
+              No starred boards yet
+            </div>
+          )}
           {starredBoards.map((board) => (
-            <BoardCard key={board.id} {...board} starred />
+            <div key={board.id} className="relative">
+              <BoardCard
+                id={board.id}
+                title={board.name}
+                background={board.background}
+                starred={board.isStarred}
+                onToggleStar={() => handleToggleStar(board.id, board.isStarred)}
+              />
+            </div>
           ))}
         </BoardSection>
 
@@ -48,7 +114,15 @@ export function DashboardPage() {
             <CreateBoardCard />
           </div>
           {allBoards.map((board) => (
-            <BoardCard key={board.id} {...board} />
+            <div key={board.id} className="relative">
+              <BoardCard
+                id={board.id}
+                title={board.name}
+                background={board.background}
+                starred={board.isStarred}
+                onToggleStar={() => handleToggleStar(board.id, board.isStarred)}
+              />
+            </div>
           ))}
         </BoardSection>
       </div>
