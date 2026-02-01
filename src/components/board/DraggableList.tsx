@@ -3,6 +3,7 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
+import { useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { motion } from 'framer-motion'
 import { KanbanList } from './KanbanList'
@@ -26,31 +27,43 @@ export function DraggableList({ list }: DraggableListProps) {
     data: { type: 'list', listId: list.id },
   })
 
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+    id: list.id,
+    data: { type: 'list', listId: list.id },
+  })
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.7 : 1,
   }
 
+  const dropZoneStyle = {
+    transition: 'background-color 0.2s ease',
+    backgroundColor: isOver ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+  }
+
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
-      <SortableContext
-        items={list.cards.map((c) => c.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        <motion.div layout transition={{ duration: 0.3 }}>
-          <KanbanList
-            title={list.title}
-            cardCount={list.cards.length}
-            listId={list.id}
-            dragHandleProps={listeners}
-          >
-            {list.cards.map((card) => (
-              <DraggableCard key={card.id} card={card} listId={list.id} />
-            ))}
-          </KanbanList>
-        </motion.div>
-      </SortableContext>
+      <div ref={setDroppableRef} style={dropZoneStyle}>
+        <SortableContext
+          items={list.cards.map((c) => c.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <motion.div layout transition={{ duration: 0.3 }}>
+            <KanbanList
+              title={list.title}
+              cardCount={list.cards.length}
+              listId={list.id}
+              dragHandleProps={listeners}
+            >
+              {list.cards.map((card) => (
+                <DraggableCard key={card.id} card={card} listId={list.id} />
+              ))}
+            </KanbanList>
+          </motion.div>
+        </SortableContext>
+      </div>
     </div>
   )
 }

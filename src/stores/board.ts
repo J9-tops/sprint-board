@@ -56,11 +56,15 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
         sourceCardId,
         sourceListId,
         targetListId,
-        targetIndex,
+        targetCardId ? targetIndex : targetList.cards.length,
       )
 
       const movedCard = sourceList.cards.splice(cardIndex, 1)[0]
-      targetList.cards.splice(targetIndex, 0, movedCard)
+      targetList.cards.splice(
+        targetCardId ? targetIndex : targetList.cards.length,
+        0,
+        movedCard,
+      )
 
       set({
         boardData: {

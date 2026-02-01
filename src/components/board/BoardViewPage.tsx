@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useParams } from '@tanstack/react-router'
 import {
   DndContext,
@@ -12,7 +12,7 @@ import { useTabs } from '../layout/TabsContext'
 import { BoardHeader } from './BoardHeader'
 import { BoardListsContainer } from './BoardListsContainer'
 import { BoardDragOverlay } from './BoardDragOverlay'
-import type { DragEndEvent } from '@dnd-kit/core'
+import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core'
 import { useBoardStore } from '@/stores/board'
 import { getBoardOrThrow } from '@/db'
 
@@ -28,6 +28,8 @@ export function BoardViewPage() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [boardTitle, setBoardTitle] = useState<string>('Board')
   const [isBoardStarred, setIsBoardStarred] = useState<boolean>(false)
+  const [overContainerId, setOverContainerId] = useState<string | null>(null)
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -69,7 +71,63 @@ export function BoardViewPage() {
     })
   }, [addTab, location.pathname, boardData, boardId, boardTitle])
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string)
+    setOverContainerId(null)
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
+    }
+  }
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event
+    if (!over) return
+
+    const draggedId = active.id as string
+    const overId = over.id as string
+
+    const activeList = boardData.lists.find((l) =>
+      l.cards.some((c) => c.id === draggedId),
+    )
+
+    if (!activeList) return
+
+    const sourceListId = activeList.id
+
+    // Check if over a list (for empty lists)
+    const targetList = boardData.lists.find((l) => l.id === overId)
+    if (targetList && overContainerId !== targetList.id) {
+      setOverContainerId(targetList.id)
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+      debounceTimerRef.current = setTimeout(() => {
+        reorderCards(sourceListId, draggedId, targetList.id, undefined)
+      }, 30)
+      return
+    }
+
+    // Check if over a card
+    const cardTargetList = boardData.lists.find((l) =>
+      l.cards.some((c) => c.id === overId),
+    )
+    if (cardTargetList && overContainerId !== cardTargetList.id) {
+      setOverContainerId(cardTargetList.id)
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+      debounceTimerRef.current = setTimeout(() => {
+        reorderCards(sourceListId, draggedId, cardTargetList.id, overId)
+      }, 30)
+    }
+  }
+
   const handleDragEnd = async (event: DragEndEvent) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
+    }
     const { active, over } = event
     if (!over) return
 
@@ -83,17 +141,27 @@ export function BoardViewPage() {
 
     if (isCard) {
       const sourceListId = activeList.id
-      const targetList = boardData.lists.find((l) =>
-        l.cards.some((c) => c.id === overId),
-      )
+
+      // Check if dropping on a list (for empty lists or appending)
+      const targetList = boardData.lists.find((l) => l.id === overId)
       if (targetList) {
-        await reorderCards(sourceListId, draggedId, targetList.id, overId)
+        // Dropping on a list - add to the end
+        await reorderCards(sourceListId, draggedId, targetList.id, undefined)
+      } else {
+        // Check if dropping on a card
+        const cardTargetList = boardData.lists.find((l) =>
+          l.cards.some((c) => c.id === overId),
+        )
+        if (cardTargetList) {
+          await reorderCards(sourceListId, draggedId, cardTargetList.id, overId)
+        }
       }
     } else {
       await reorderLists(draggedId, overId)
     }
 
     setActiveId(null)
+    setOverContainerId(null)
   }
 
   if (isLoading) {
@@ -118,7 +186,8 @@ export function BoardViewPage() {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
-        onDragStart={(e) => setActiveId(e.active.id as string)}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
         <div className="flex-1 overflow-x-auto p-6 scrollbar-premium h-full">
