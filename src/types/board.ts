@@ -43,6 +43,8 @@ export interface BoardStore {
   addList: (name: string) => Promise<void>
   updateList: (listId: string, name: string) => Promise<void>
   deleteList: (listId: string) => Promise<void>
+  updateCard: (cardId: string, title: string) => Promise<void>
+  deleteCard: (cardId: string, listId: string) => Promise<void>
 }
 
 function formatCard(

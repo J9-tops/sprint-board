@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { BoardData, BoardStore } from '@/types/board'
 import { getBoardWithData } from '@/services/board.service'
 import { moveCardTransaction, moveListTransaction } from '@/db'
-import { createCard } from '@/services/card.service'
+import { createCard, deleteCard, updateCard } from '@/services/card.service'
 import {
   createList,
   deleteList as deleteListService,
@@ -185,6 +185,49 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
       })
     } catch (e) {
       console.error('Failed to delete list:', e)
+    }
+  },
+
+  updateCard: async (cardId, title) => {
+    const { boardData } = get()
+
+    try {
+      await updateCard(cardId, { title })
+
+      set({
+        boardData: {
+          ...boardData,
+          lists: boardData.lists.map((list) => ({
+            ...list,
+            cards: list.cards.map((card) =>
+              card.id === cardId ? { ...card, title } : card,
+            ),
+          })),
+        },
+      })
+    } catch (e) {
+      console.error('Failed to update card:', e)
+    }
+  },
+
+  deleteCard: async (cardId, listId) => {
+    const { boardData } = get()
+
+    try {
+      await deleteCard(cardId)
+
+      set({
+        boardData: {
+          ...boardData,
+          lists: boardData.lists.map((list) =>
+            list.id === listId
+              ? { ...list, cards: list.cards.filter((c) => c.id !== cardId) }
+              : list,
+          ),
+        },
+      })
+    } catch (e) {
+      console.error('Failed to delete card:', e)
     }
   },
 }))

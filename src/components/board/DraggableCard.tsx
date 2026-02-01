@@ -9,6 +9,10 @@ interface DraggableCardProps {
   listId: string
 }
 
+/**
+ * Wrapper component that adds drag-and-drop functionality to KanbanCard.
+ * Uses dnd-kit's useSortable hook to enable card reordering within and across lists.
+ */
 export function DraggableCard({ card, listId }: DraggableCardProps) {
   const {
     attributes,
@@ -30,7 +34,7 @@ export function DraggableCard({ card, listId }: DraggableCardProps) {
 
   return (
     <motion.div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <KanbanCard {...card} />
+      <KanbanCard {...card} id={card.id} listId={listId} />
     </motion.div>
   )
 }

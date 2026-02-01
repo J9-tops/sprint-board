@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from '@tanstack/react-router'
-import { DndContext, closestCenter } from '@dnd-kit/core'
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
 import { Layout } from 'lucide-react'
 import { useTabs } from '../layout/TabsContext'
 import { BoardHeader } from './BoardHeader'
@@ -22,6 +28,14 @@ export function BoardViewPage() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [boardTitle, setBoardTitle] = useState<string>('Board')
   const [isBoardStarred, setIsBoardStarred] = useState<boolean>(false)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+  )
 
   useEffect(() => {
     if (boardId) {
@@ -102,6 +116,7 @@ export function BoardViewPage() {
     <div className="flex flex-col h-full overflow-hidden bg-muted/10">
       <BoardHeader title={boardTitle} isStarred={isBoardStarred} />
       <DndContext
+        sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={(e) => setActiveId(e.active.id as string)}
         onDragEnd={handleDragEnd}
