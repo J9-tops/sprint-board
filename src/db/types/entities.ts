@@ -2,6 +2,15 @@
  * Core entity type definitions for IndexedDB object stores.
  */
 
+export interface Workspace {
+  id: string
+  name: string
+  color: string
+  position: number
+  createdAt: number
+  updatedAt: number
+}
+
 export interface Board {
   id: string
   name: string
@@ -10,6 +19,7 @@ export interface Board {
   isStarred: boolean
   isArchived: boolean
   position: number
+  workspaceId: string | null
   createdAt: number
   updatedAt: number
 }

@@ -17,6 +17,7 @@ import {
   getActiveBoards,
   getArchivedBoards,
   getBoardOrThrow,
+  getBoardsByWorkspace,
   getCardsByBoard,
   getLabelsByBoard,
   getLabelsForCard,
@@ -37,6 +38,7 @@ export async function createBoard(
   name: string,
   background: string = BOARD_BACKGROUNDS.SOLID[0],
   description: string = '',
+  workspaceId: string | null = null,
 ): Promise<BoardWithData> {
   // Create the board
   const board = await dbCreateBoard({
@@ -46,6 +48,7 @@ export async function createBoard(
     isStarred: false,
     isArchived: false,
     position: 0, // Will be calculated by dbCreateBoard
+    workspaceId,
   })
 
   // Create default list
@@ -107,6 +110,11 @@ export async function getBoardWithData(
 export async function getBoards(): Promise<Array<Board>> {
   return getActiveBoards()
 }
+
+/**
+ * Get boards by workspace.
+ */
+export { getBoardsByWorkspace }
 
 /**
  * Get starred boards.
@@ -173,6 +181,7 @@ export async function duplicateBoard(
     isStarred: false,
     isArchived: false,
     position: 0,
+    workspaceId: source.workspaceId,
   })
 
   // Map old IDs to new IDs for labels

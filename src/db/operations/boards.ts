@@ -71,6 +71,16 @@ export async function getStarredBoards(): Promise<Array<Board>> {
   return boards.sort((a, b) => a.position - b.position)
 }
 
+export async function getBoardsByWorkspace(
+  workspaceId: string | null,
+): Promise<Array<Board>> {
+  const boards = await getItemsWithFilter<Board>(
+    STORE_NAMES.BOARDS,
+    (b) => !b.isArchived && b.workspaceId === workspaceId,
+  )
+  return boards.sort((a, b) => a.position - b.position)
+}
+
 export async function updateBoard(
   id: string,
   updates: Partial<Board>,

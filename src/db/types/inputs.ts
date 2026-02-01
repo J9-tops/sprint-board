@@ -9,9 +9,14 @@ import type {
   ChecklistItem,
   Label,
   List,
+  Workspace,
 } from './entities'
 
 /** Input type for creating entities (omits auto-generated fields) */
+export type CreateWorkspaceInput = Omit<
+  Workspace,
+  'id' | 'createdAt' | 'updatedAt'
+>
 export type CreateBoardInput = Omit<Board, 'id' | 'createdAt' | 'updatedAt'>
 export type CreateListInput = Omit<List, 'id' | 'createdAt' | 'updatedAt'>
 export type CreateCardInput = Omit<Card, 'id' | 'createdAt' | 'updatedAt'>

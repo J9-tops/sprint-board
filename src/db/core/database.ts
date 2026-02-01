@@ -28,19 +28,91 @@ export async function initDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result
+      const transaction = request.transaction
+      const oldVersion = event.oldVersion
+
       createStores(db)
+
+      // Migration from v1 to v2
+      if (oldVersion < 2 && transaction) {
+        migrateToV2(transaction)
+      }
     }
   })
 }
 
+/**
+ * Migration from v1 to v2: Add workspace support.
+ * Creates a default workspace and assigns existing boards to it.
+ */
+function migrateToV2(transaction: IDBTransaction): void {
+  // Add workspaceId index to boards store
+  const boardsStore = transaction.objectStore(STORE_NAMES.BOARDS)
+  if (!boardsStore.indexNames.contains('workspaceId')) {
+    boardsStore.createIndex('workspaceId', 'workspaceId', { unique: false })
+  }
+
+  const workspacesStore = transaction.objectStore(STORE_NAMES.WORKSPACES)
+
+  // Create a default workspace
+  const defaultWorkspace: {
+    id: string
+    name: string
+    color: string
+    position: number
+    createdAt: number
+    updatedAt: number
+  } = {
+    id: 'default-workspace',
+    name: 'My Workspace',
+    color: '#0079BF',
+    position: 0,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  }
+
+  workspacesStore.add(defaultWorkspace)
+
+  // Migrate all existing boards to the default workspace
+  const getAllRequest = boardsStore.getAll()
+  getAllRequest.onsuccess = () => {
+    const boards = getAllRequest.result as Array<{
+      id: string
+      isStarred: boolean
+      isArchived: boolean
+      position: number
+      createdAt: number
+      updatedAt: number
+      name: string
+      description: string
+      background: string
+      workspaceId?: string | null
+    }>
+
+    boards.forEach((board) => {
+      const updatedBoard = { ...board, workspaceId: defaultWorkspace.id }
+      boardsStore.put(updatedBoard)
+    })
+  }
+}
+
 /** Create all object stores and indexes */
 function createStores(db: IDBDatabase): void {
+  // Workspaces
+  if (!db.objectStoreNames.contains(STORE_NAMES.WORKSPACES)) {
+    const store = db.createObjectStore(STORE_NAMES.WORKSPACES, {
+      keyPath: 'id',
+    })
+    store.createIndex('position', 'position', { unique: false })
+  }
+
   // Boards
   if (!db.objectStoreNames.contains(STORE_NAMES.BOARDS)) {
     const store = db.createObjectStore(STORE_NAMES.BOARDS, { keyPath: 'id' })
     store.createIndex('isStarred', 'isStarred', { unique: false })
     store.createIndex('isArchived', 'isArchived', { unique: false })
     store.createIndex('position', 'position', { unique: false })
+    store.createIndex('workspaceId', 'workspaceId', { unique: false })
   }
 
   // Lists

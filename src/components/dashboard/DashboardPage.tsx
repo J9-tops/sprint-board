@@ -1,33 +1,43 @@
 import { useEffect, useState } from 'react'
 import { LayoutGrid, Star } from 'lucide-react'
+import { WorkspaceEmptyState } from '../layout/WorkspaceEmptyState'
+import { useWorkspaces } from '../layout/WorkspaceContext'
 import { BoardSection } from './BoardSection'
 import { BoardCard } from './BoardCard'
 import { CreateBoardCard } from './CreateBoardCard'
+import { BoardEmptyState } from './BoardEmptyState'
 import type { Board } from '@/db/types/entities'
 import { useModalStore } from '@/stores/modals'
 import {
   createBoard,
   deleteBoard,
-  getBoards,
+  getBoardsByWorkspace,
   getStarredBoards,
   toggleStar,
 } from '@/services/board.service'
 
 export function DashboardPage() {
+  const { workspaces, activeWorkspace, setActiveWorkspace, refreshWorkspaces } =
+    useWorkspaces()
   const [starredBoards, setStarredBoards] = useState<Array<Board>>([])
   const [allBoards, setAllBoards] = useState<Array<Board>>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { openModal } = useModalStore()
+  const { openModal, closeModal } = useModalStore()
 
   useEffect(() => {
     const loadBoards = async () => {
       try {
-        const [starred, all] = await Promise.all([
+        if (!activeWorkspace || workspaces.length === 0) {
+          setIsLoading(false)
+          return
+        }
+
+        const [starred, workspaceBoards] = await Promise.all([
           getStarredBoards(),
-          getBoards(),
+          getBoardsByWorkspace(activeWorkspace.id),
         ])
         setStarredBoards(starred)
-        setAllBoards(all)
+        setAllBoards(workspaceBoards)
       } catch (e) {
         console.error('Failed to load boards:', e)
       } finally {
@@ -36,30 +46,38 @@ export function DashboardPage() {
     }
 
     loadBoards()
-  }, [])
+  }, [activeWorkspace, workspaces])
 
   const handleCreateBoard = async (data: {
     title: string
     background: string
   }) => {
-    const newBoard = await createBoard(data.title, data.background)
+    const newBoard = await createBoard(
+      data.title,
+      data.background,
+      '',
+      activeWorkspace?.id || null,
+    )
     setAllBoards([newBoard, ...allBoards])
   }
 
-  const handleToggleStar = async (boardId: string, currentStarred: boolean) => {
+  const handleToggleStar = async (boardId: string) => {
     try {
+      const board = allBoards.find((b) => b.id === boardId)
+      if (!board) return
+
+      const newStarredState = !board.isStarred
       await toggleStar(boardId)
-      if (currentStarred) {
-        setStarredBoards(starredBoards.filter((b) => b.id !== boardId))
+
+      if (newStarredState) {
+        setStarredBoards([...starredBoards, board])
       } else {
-        const board = allBoards.find((b) => b.id === boardId)
-        if (board) {
-          setStarredBoards([...starredBoards, board])
-        }
+        setStarredBoards(starredBoards.filter((b) => b.id !== boardId))
       }
+
       setAllBoards(
         allBoards.map((b) =>
-          b.id === boardId ? { ...b, isStarred: !b.isStarred } : b,
+          b.id === boardId ? { ...b, isStarred: newStarredState } : b,
         ),
       )
     } catch (e) {
@@ -85,32 +103,63 @@ export function DashboardPage() {
     )
   }
 
+  if (workspaces.length === 0) {
+    return (
+      <div className="flex-1 min-h-full bg-linear-to-br from-background via-background to-muted/30">
+        <WorkspaceEmptyState
+          onCreateWorkspace={() => {
+            openModal('create-workspace', {
+              onCreate: async (data: { name: string; color: string }) => {
+                const { createWorkspaceService: createWs } =
+                  await import('@/services/workspace.service')
+                const newWorkspace = await createWs(data.name, data.color)
+                setActiveWorkspace(newWorkspace.id)
+                refreshWorkspaces()
+                closeModal()
+              },
+            })
+          }}
+        />
+      </div>
+    )
+  }
+
+  if (allBoards.length === 0) {
+    return (
+      <div className="flex-1 min-h-full bg-linear-to-br from-background via-background to-muted/30">
+        <BoardEmptyState
+          workspaceName={activeWorkspace?.name || 'this workspace'}
+          onCreateBoard={() =>
+            openModal('create-board', { onCreate: handleCreateBoard })
+          }
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="flex-1 min-h-full bg-linear-to-br from-background via-background to-muted/30">
       <div className="p-4 md:p-8 lg:p-12 space-y-16 max-w-450 mx-auto">
-        <BoardSection
-          title="Starred Boards"
-          icon={Star}
-          iconColor="text-yellow-500"
-        >
-          {starredBoards.length === 0 && (
-            <div className="col-span-full text-center text-muted-foreground py-8">
-              No starred boards yet
-            </div>
-          )}
-          {starredBoards.map((board) => (
-            <div key={board.id} className="relative">
-              <BoardCard
-                id={board.id}
-                title={board.name}
-                background={board.background}
-                starred={board.isStarred}
-                onToggleStar={() => handleToggleStar(board.id, board.isStarred)}
-                onDelete={() => handleDelete(board.id)}
-              />
-            </div>
-          ))}
-        </BoardSection>
+        {starredBoards.length > 0 && (
+          <BoardSection
+            title="Starred Boards"
+            icon={Star}
+            iconColor="text-yellow-500"
+          >
+            {starredBoards.map((board) => (
+              <div key={board.id} className="relative">
+                <BoardCard
+                  id={board.id}
+                  title={board.name}
+                  background={board.background}
+                  starred={board.isStarred}
+                  onToggleStar={() => handleToggleStar(board.id)}
+                  onDelete={() => handleDelete(board.id)}
+                />
+              </div>
+            ))}
+          </BoardSection>
+        )}
 
         <BoardSection
           title="All Boards"
@@ -132,7 +181,7 @@ export function DashboardPage() {
                 title={board.name}
                 background={board.background}
                 starred={board.isStarred}
-                onToggleStar={() => handleToggleStar(board.id, board.isStarred)}
+                onToggleStar={() => handleToggleStar(board.id)}
                 onDelete={() => handleDelete(board.id)}
               />
             </div>

@@ -1,8 +1,23 @@
-export type ModalType = 'create-board' | 'card-detail' | 'confirm-delete'
+export type ModalType =
+  | 'create-board'
+  | 'create-workspace'
+  | 'card-detail'
+  | 'confirm-delete'
 
 export interface CreateBoardModalProps {
   onClose: () => void
   onCreate: (data: { title: string; background: string }) => void
+}
+
+export interface CreateWorkspaceModalProps {
+  onClose: () => void
+  onCreate: (data: { name: string; color: string }) => void
+}
+
+export interface ConfirmDeleteWorkspaceModalProps {
+  onClose: () => void
+  onConfirm: () => void
+  workspaceName: string
 }
 
 export interface CardModalProps {

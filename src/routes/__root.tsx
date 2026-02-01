@@ -18,6 +18,7 @@ import appCss from '../styles.css?url'
 
 import { LayoutProvider, useLayout } from '../components/layout/LayoutContext'
 import { ThemeProvider } from '../components/layout/ThemeProvider'
+import { WorkspaceProvider } from '../components/layout/WorkspaceContext'
 import { TabsProvider, useTabs } from '../components/layout/TabsContext'
 import { TabsBar } from '../components/layout/TabsBar'
 import { ModalWrapper } from '../components/layout/ModalWrapper'
@@ -61,14 +62,17 @@ function RootDocument() {
       <body className="antialiased font-sans bg-background text-foreground">
         <LayoutProvider>
           <ThemeProvider
+            attribute="class"
             defaultTheme="dark"
             storageKey="vite-ui-theme"
             enableSystem
           >
-            <TabsProvider>
-              <AppShell />
-              <ModalWrapper />
-            </TabsProvider>
+            <WorkspaceProvider>
+              <TabsProvider>
+                <AppShell />
+                <ModalWrapper />
+              </TabsProvider>
+            </WorkspaceProvider>
           </ThemeProvider>
         </LayoutProvider>
         <TanStackDevtools

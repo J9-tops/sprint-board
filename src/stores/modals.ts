@@ -1,6 +1,11 @@
 import { create } from 'zustand'
 
-export type ModalType = 'create-board' | 'card-detail' | 'confirm-delete'
+export type ModalType =
+  | 'create-board'
+  | 'create-workspace'
+  | 'card-detail'
+  | 'confirm-delete'
+  | 'confirm-delete-workspace'
 
 export interface ModalState {
   status: 'open' | 'close'

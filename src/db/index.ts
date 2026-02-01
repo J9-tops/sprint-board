@@ -51,6 +51,8 @@ export type {
   ChecklistItem,
   Attachment,
   Setting,
+  Workspace,
+  CreateWorkspaceInput,
   CreateBoardInput,
   CreateListInput,
   CreateCardInput,
@@ -70,6 +72,13 @@ export type {
 
 // Operations exports
 export {
+  // Workspaces
+  createWorkspace,
+  getWorkspace,
+  getWorkspaceOrThrow,
+  getAllWorkspaces,
+  updateWorkspace,
+  deleteWorkspace,
   // Boards
   createBoard,
   getBoard,
@@ -78,6 +87,7 @@ export {
   getActiveBoards,
   getArchivedBoards,
   getStarredBoards,
+  getBoardsByWorkspace,
   updateBoard,
   archiveBoard,
   restoreBoard,

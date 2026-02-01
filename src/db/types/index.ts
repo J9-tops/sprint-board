@@ -12,9 +12,11 @@ export type {
   ChecklistItem,
   Attachment,
   Setting,
+  Workspace,
 } from './entities'
 
 export type {
+  CreateWorkspaceInput,
   CreateBoardInput,
   CreateListInput,
   CreateCardInput,

@@ -3,6 +3,15 @@
  */
 
 export {
+  createWorkspace,
+  getWorkspace,
+  getWorkspaceOrThrow,
+  getAllWorkspaces,
+  updateWorkspace,
+  deleteWorkspace,
+} from './workspaces'
+
+export {
   createBoard,
   getBoard,
   getBoardOrThrow,
@@ -10,6 +19,7 @@ export {
   getActiveBoards,
   getArchivedBoards,
   getStarredBoards,
+  getBoardsByWorkspace,
   updateBoard,
   archiveBoard,
   restoreBoard,
