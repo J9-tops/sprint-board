@@ -28,6 +28,7 @@ export function BoardViewPage() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [boardTitle, setBoardTitle] = useState<string>('Board')
   const [isBoardStarred, setIsBoardStarred] = useState<boolean>(false)
+  const [boardError, setBoardError] = useState<boolean>(false)
   const [overContainerId, setOverContainerId] = useState<string | null>(null)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -52,8 +53,10 @@ export function BoardViewPage() {
         const board = await getBoardOrThrow(boardId)
         setBoardTitle(board.name)
         setIsBoardStarred(board.isStarred)
+        setBoardError(false)
       } catch (e) {
         console.error('Failed to load board info:', e)
+        setBoardError(true)
       }
     }
 
@@ -61,7 +64,8 @@ export function BoardViewPage() {
   }, [boardId])
 
   useEffect(() => {
-    if (boardData.lists.length === 0) return
+    // Add tab when board is loaded successfully (even if empty)
+    if (boardError || !boardTitle || boardTitle === 'Board') return
 
     addTab({
       id: boardId || 'board-view',
@@ -172,7 +176,7 @@ export function BoardViewPage() {
     )
   }
 
-  if (boardData.lists.length === 0) {
+  if (boardError) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-muted-foreground">Board not found</div>

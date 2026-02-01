@@ -59,6 +59,14 @@ export async function updateWorkspace(
 }
 
 export async function deleteWorkspace(id: string): Promise<void> {
+  // Cascade delete all boards in this workspace (boards will cascade delete lists, cards, labels)
+  const { getBoardsByWorkspace } = await import('./boards')
+  const { cascadeDeleteBoard } = await import('./cascade')
+  const boards = await getBoardsByWorkspace(id)
+  for (const board of boards) {
+    await cascadeDeleteBoard(board.id)
+  }
+
   const db = await (await import('../core')).getDB()
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE_NAMES.WORKSPACES, 'readwrite')

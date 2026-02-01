@@ -32,7 +32,7 @@ import type { Board, BoardWithData } from '../db'
 // ============================================================================
 
 /**
- * Create a new board with a default "To Do" list.
+ * Create a new board without any default lists.
  */
 export async function createBoard(
   name: string,
@@ -40,29 +40,19 @@ export async function createBoard(
   description: string = '',
   workspaceId: string | null = null,
 ): Promise<BoardWithData> {
-  // Create the board
   const board = await dbCreateBoard({
     name,
     description,
     background,
     isStarred: false,
     isArchived: false,
-    position: 0, // Will be calculated by dbCreateBoard
-    workspaceId,
-  })
-
-  // Create default list
-  const defaultList = await createList({
-    boardId: board.id,
-    name: 'To Do',
     position: 0,
-    isArchived: false,
-    isCollapsed: false,
+    workspaceId,
   })
 
   return {
     ...board,
-    lists: [{ ...defaultList, cards: [] }],
+    lists: [],
     labels: [],
   }
 }

@@ -1,5 +1,7 @@
 import { MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react'
+import { useLocation } from '@tanstack/react-router'
 import { useWorkspaces } from './WorkspaceContext'
+import { useTabs } from './TabsContext'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useModalStore } from '@/stores/modals'
@@ -18,6 +20,8 @@ export function WorkspaceList() {
     refreshWorkspaces,
   } = useWorkspaces()
   const { openModal, closeModal } = useModalStore()
+  const { tabs, closeTab } = useTabs()
+  const location = useLocation()
 
   const handleCreateWorkspace = () => {
     openModal('create-workspace', {
@@ -63,6 +67,14 @@ export function WorkspaceList() {
 
         if (activeWorkspaceId === workspaceId) {
           setActiveWorkspace(null)
+        }
+
+        // Close board tab if currently viewing a board (which may belong to deleted workspace)
+        if (location.pathname.startsWith('/board/')) {
+          const boardTab = tabs.find((t) => t.path === location.pathname)
+          if (boardTab) {
+            closeTab(boardTab.id)
+          }
         }
 
         refreshWorkspaces()
