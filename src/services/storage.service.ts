@@ -9,7 +9,10 @@ import {
   formatBytes,
   getArchivedBoards,
   getStorageByBoard,
+  getStorageLimitConfig,
   getStorageWarningLevel,
+  toggleUseCustomLimit,
+  updateCustomStorageLimit,
 } from '../db'
 import type {
   Attachment,
@@ -24,6 +27,9 @@ export {
   getStorageWarningLevel,
   cascadeDeleteBoard,
   cascadeDeleteCard,
+  getStorageLimitConfig,
+  updateCustomStorageLimit,
+  toggleUseCustomLimit,
 }
 
 // ============================================================================

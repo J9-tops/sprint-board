@@ -35,4 +35,5 @@ export type {
   CardFilters,
   StorageBreakdown,
   BoardStorageInfo,
+  StorageLimitConfig,
 } from './aggregates'

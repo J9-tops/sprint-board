@@ -64,3 +64,9 @@ export interface BoardStorageInfo {
   attachmentCount: number
   lastModified: number
 }
+
+/** Storage limit configuration */
+export interface StorageLimitConfig {
+  customLimit: number
+  useCustomLimit: boolean
+}

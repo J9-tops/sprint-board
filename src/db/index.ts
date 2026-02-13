@@ -166,6 +166,9 @@ export {
   getStorageByBoard,
   formatBytes,
   getStorageWarningLevel,
+  getStorageLimitConfig,
+  updateCustomStorageLimit,
+  toggleUseCustomLimit,
   // Search utilities
   searchCards,
   getOverdueCards,

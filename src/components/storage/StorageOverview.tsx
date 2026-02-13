@@ -4,9 +4,28 @@ import {
   CheckCircle2,
   Database,
   Paperclip,
+  Settings,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { formatBytes, getStorageOverview, getStorageWarningLevel } from '@/services'
+import {
+  formatBytes,
+  getStorageLimitConfig,
+  getStorageOverview,
+  getStorageWarningLevel,
+  toggleUseCustomLimit,
+  updateCustomStorageLimit,
+} from '@/services'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 
 export function StorageOverview() {
@@ -20,24 +39,24 @@ export function StorageOverview() {
     available: number
     percentUsed: number
   } | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [limitConfig, setLimitConfig] = useState(() => getStorageLimitConfig())
+  const [showLimitDialog, setShowLimitDialog] = useState(false)
+  const [customLimitGB, setCustomLimitGB] = useState(
+    limitConfig.customLimit / (1024 * 1024 * 1024),
+  )
 
   useEffect(() => {
     // Initial load
     loadStorage()
-
-    // Listen for storage updates (if we had a global event system, we'd hook here)
-    // For now, we'll just load once.
   }, [])
 
   const loadStorage = async () => {
     try {
       const data = await getStorageOverview()
       setStorageData(data)
+      setLimitConfig(getStorageLimitConfig())
     } catch (e) {
       console.error('Failed to load storage:', e)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -55,12 +74,14 @@ export function StorageOverview() {
 
   const getStatusBg = () => {
     if (warningLevel === 'critical') return 'bg-red-500/10 border-red-500/20'
-    if (warningLevel === 'warning') return 'bg-orange-500/10 border-orange-500/20'
+    if (warningLevel === 'warning')
+      return 'bg-orange-500/10 border-orange-500/20'
     return 'bg-green-500/10 border-green-500/20'
   }
 
   const getStatusIcon = () => {
-    if (warningLevel === 'critical') return <AlertTriangle className="h-5 w-5" />
+    if (warningLevel === 'critical')
+      return <AlertTriangle className="h-5 w-5" />
     if (warningLevel === 'warning') return <AlertCircle className="h-5 w-5" />
     return <CheckCircle2 className="h-5 w-5" />
   }
@@ -76,10 +97,33 @@ export function StorageOverview() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h3 className="text-base font-bold tracking-tight">Storage Overview</h3>
-            <p className="text-sm text-muted-foreground">Local browser quota</p>
+            <h3 className="text-base font-bold tracking-tight">
+              Storage Overview
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {limitConfig.useCustomLimit
+                ? `Custom limit: ${formatBytes(limitConfig.customLimit)}`
+                : `${formatBytes(limitConfig.customLimit)} limit (default)`}
+            </p>
           </div>
-          <div className={cn("px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 border", getStatusBg(), getStatusColor())}>
+          <button
+            className="flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full border border-border/50 hover:bg-muted/50 transition-colors"
+            onClick={() => setShowLimitDialog(true)}
+            type="button"
+          >
+            <Settings size={14} />
+            Configure Limit
+          </button>
+        </div>
+
+        <div className="flex justify-center">
+          <div
+            className={cn(
+              'px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 border',
+              getStatusBg(),
+              getStatusColor(),
+            )}
+          >
             {getStatusIcon()}
             {getStatusText()}
           </div>
@@ -88,7 +132,10 @@ export function StorageOverview() {
         {/* Circular Progress & Main Stat */}
         <div className="flex items-center gap-8 justify-center py-4">
           <div className="relative h-40 w-40 flex items-center justify-center">
-            <svg className="h-full w-full transform -rotate-90 overflow-visible" viewBox="0 0 160 160">
+            <svg
+              className="h-full w-full transform -rotate-90 overflow-visible"
+              viewBox="0 0 160 160"
+            >
               {/* Background Circle */}
               <circle
                 cx="80"
@@ -109,13 +156,17 @@ export function StorageOverview() {
                 fill="transparent"
                 strokeDasharray={439.8}
                 strokeDashoffset={439.8 * (1 - percentUsed / 100)}
-                className={cn("transition-all duration-1000 ease-out", getStatusColor())}
+                className={cn(
+                  'transition-all duration-1000 ease-out',
+                  getStatusColor(),
+                )}
                 strokeLinecap="round"
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
               <span className="text-4xl font-black tracking-tighter">
-                {percentUsed.toFixed(0)}<span className="text-xl">%</span>
+                {percentUsed.toFixed(0)}
+                <span className="text-xl">%</span>
               </span>
               <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1">
                 Used
@@ -124,47 +175,127 @@ export function StorageOverview() {
           </div>
 
           <div className="space-y-4">
-             <div className="space-y-1">
-                <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Used Space</div>
-                <div className="text-2xl font-black tracking-tight flex items-baseline gap-1">
-                    {formatBytes(usedBytes)}
-                </div>
-             </div>
-             <div className="space-y-1">
-                <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Free Space</div>
-                <div className="text-2xl font-black tracking-tight text-muted-foreground flex items-baseline gap-1">
-                    {formatBytes(freeBytes)}
-                </div>
-             </div>
+            <div className="space-y-1">
+              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                Used Space
+              </div>
+              <div className="text-2xl font-black tracking-tight flex items-baseline gap-1">
+                {formatBytes(usedBytes)}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                Free Space
+              </div>
+              <div className="text-2xl font-black tracking-tight text-muted-foreground flex items-baseline gap-1">
+                {formatBytes(freeBytes)}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Detailed Stats Grid */}
       <div className="grid grid-cols-2 gap-4 mt-6">
-        <StatItem 
-            icon={<Database className="h-4 w-4 text-blue-500" />}
-            label="Boards"
-            value={storageData?.boardCount ?? 0}
-            className="bg-blue-500/5 hover:bg-blue-500/10 text-blue-700 dark:text-blue-300"
+        <StatItem
+          icon={<Database className="h-4 w-4 text-blue-500" />}
+          label="Boards"
+          value={storageData?.boardCount ?? 0}
+          className="bg-blue-500/5 hover:bg-blue-500/10 text-blue-700 dark:text-blue-300"
         />
-         <StatItem 
-            icon={<Paperclip className="h-4 w-4 text-purple-500" />}
-            label="Attachments"
-            value={storageData?.attachmentCount ?? 0}
-            className="bg-purple-500/5 hover:bg-purple-500/10 text-purple-700 dark:text-purple-300"
+        <StatItem
+          icon={<Paperclip className="h-4 w-4 text-purple-500" />}
+          label="Attachments"
+          value={storageData?.attachmentCount ?? 0}
+          className="bg-purple-500/5 hover:bg-purple-500/10 text-purple-700 dark:text-purple-300"
         />
       </div>
+
+      {/* Storage Limit Dialog */}
+      <Dialog open={showLimitDialog} onOpenChange={setShowLimitDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Configure Storage Limit</DialogTitle>
+            <DialogDescription>
+              Set a custom storage limit for your local data. When enabled, this
+              limit will be used instead of the browser's default quota.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="use-custom"
+                checked={limitConfig.useCustomLimit}
+                onCheckedChange={(checked) =>
+                  toggleUseCustomLimit(checked === true)
+                }
+              />
+              <label
+                htmlFor="use-custom"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Use custom storage limit
+              </label>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Custom Limit (GB)</label>
+              <Input
+                type="number"
+                min="1"
+                max="100"
+                step="1"
+                value={customLimitGB}
+                onChange={(e) =>
+                  setCustomLimitGB(Number.parseFloat(e.target.value) || 5)
+                }
+                disabled={!limitConfig.useCustomLimit}
+              />
+              <p className="text-xs text-muted-foreground">
+                Current: {formatBytes(limitConfig.customLimit)}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                updateCustomStorageLimit(customLimitGB * 1024 * 1024 * 1024)
+                setLimitConfig(getStorageLimitConfig())
+                loadStorage()
+                setShowLimitDialog(false)
+              }}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
-function StatItem({ icon, label, value, className }: { icon: React.ReactNode, label: string, value: number, className?: string }) {
-    return (
-        <div className={cn("flex flex-col items-center justify-center p-3 rounded-2xl transition-colors cursor-default", className)}>
-            <div className="mb-1 opacity-80">{icon}</div>
-            <span className="text-xl font-black tracking-tight">{value}</span>
-            <span className="text-[10px] uppercase tracking-wider font-bold opacity-70">{label}</span>
-        </div>
-    )
+function StatItem({
+  icon,
+  label,
+  value,
+  className,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: number
+  className?: string
+}) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center p-3 rounded-2xl transition-colors cursor-default',
+        className,
+      )}
+    >
+      <div className="mb-1 opacity-80">{icon}</div>
+      <span className="text-xl font-black tracking-tight">{value}</span>
+      <span className="text-[10px] uppercase tracking-wider font-bold opacity-70">
+        {label}
+      </span>
+    </div>
+  )
 }

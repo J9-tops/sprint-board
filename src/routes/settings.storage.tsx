@@ -16,7 +16,6 @@ function StoragePage() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
-    // Small artificial delay to show the spinner/interaction
     await new Promise((resolve) => setTimeout(resolve, 500))
     setRefreshKey((prev) => prev + 1)
     setIsRefreshing(false)
@@ -40,7 +39,10 @@ function StoragePage() {
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
-            <RefreshCcw size={18} className={isRefreshing ? "animate-spin" : ""} />
+            <RefreshCcw
+              size={18}
+              className={isRefreshing ? 'animate-spin' : ''}
+            />
             {isRefreshing ? 'Recalculating...' : 'Recalculate Usage'}
           </Button>
         </div>
@@ -49,17 +51,17 @@ function StoragePage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
         {/* Left Column: Overview Stats */}
         <div className="xl:col-span-1 h-full">
-            <StorageOverview key={`overview-${refreshKey}`} />
+          <StorageOverview key={`overview-${refreshKey}`} />
         </div>
 
         {/* Right Column: Actions */}
         <div className="xl:col-span-2 h-full">
-            <CleanupTools key={`cleanup-${refreshKey}`} />
+          <CleanupTools key={`cleanup-${refreshKey}`} />
         </div>
-        
+
         {/* Bottom Section: Full Width Table */}
         <div className="col-span-1 xl:col-span-3">
-             <BoardStorageTable key={`table-${refreshKey}`} />
+          <BoardStorageTable key={`table-${refreshKey}`} />
         </div>
       </div>
     </div>

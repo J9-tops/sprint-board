@@ -9,6 +9,7 @@ import {
   getItemsByIndex,
   getItemsWithFilter,
 } from '../core'
+import { getEffectiveStorageLimit } from './storage-limit'
 import type {
   Attachment,
   Board,
@@ -30,13 +31,15 @@ export async function getStorageEstimate(): Promise<StorageEstimate> {
 /** Calculate complete storage breakdown */
 export async function calculateStorageUsage(): Promise<StorageBreakdown> {
   const estimate = await getStorageEstimate()
-  const available = estimate.quota || 0
+  const browserQuota = estimate.quota || 0
   const total = estimate.usage || 0
 
   const { size: boards, count: boardCount } = await calculateDataSize()
   const { size: attachments, count: attachmentCount } =
     await calculateAttachmentsSize()
   const archived = await calculateArchivedSize()
+
+  const effectiveLimit = await getEffectiveStorageLimit(browserQuota)
 
   return {
     total,
@@ -45,8 +48,8 @@ export async function calculateStorageUsage(): Promise<StorageBreakdown> {
     attachments,
     attachmentCount,
     archived,
-    available,
-    percentUsed: available > 0 ? (total / available) * 100 : 0,
+    available: effectiveLimit - total,
+    percentUsed: effectiveLimit > 0 ? (total / effectiveLimit) * 100 : 0,
   }
 }
 

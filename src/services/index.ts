@@ -139,6 +139,9 @@ export {
   getStorageWarningLevel,
   cascadeDeleteBoard,
   cascadeDeleteCard,
+  getStorageLimitConfig,
+  updateCustomStorageLimit,
+  toggleUseCustomLimit,
 } from './storage.service'
 
 // Search service
