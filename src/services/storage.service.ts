@@ -11,11 +11,23 @@ import {
   getStorageByBoard,
   getStorageWarningLevel,
 } from '../db'
-import type { BoardStorageInfo, Card, StorageBreakdown } from '../db'
+import type {
+  Attachment,
+  BoardStorageInfo,
+  Card,
+  StorageBreakdown,
+} from '../db'
 
 // Re-export utility functions
-export { formatBytes, getStorageWarningLevel }
+export {
+  formatBytes,
+  getStorageWarningLevel,
+  cascadeDeleteBoard,
+  cascadeDeleteCard,
+}
 
+// ============================================================================
+// Storage Overview
 // ============================================================================
 // Storage Overview
 // ============================================================================
@@ -119,13 +131,31 @@ export async function deleteArchivedCards(): Promise<number> {
 }
 
 /**
- * Compress all uncompressed images.
- * Note: This is a placeholder - actual implementation requires image processing.
+ * Compress all existing image attachments with compression quality.
  */
-export async function compressAllImages(): Promise<{
-  count: number
-  savedBytes: number
-}> {
-  // TODO: Implement actual image compression when needed
-  return { count: 0, savedBytes: 0 }
+export async function compressAllImages(
+  quality: number = 0.8,
+): Promise<{ count: number; savedBytes: number }> {
+  const { getAllItems, STORE_NAMES, updateItem } = await import('../db/core')
+  const { compressImage } = await import('./attachment.service')
+  const attachments = await getAllItems<Attachment>(STORE_NAMES.ATTACHMENTS)
+
+  const images = attachments.filter((a) => a.fileType.startsWith('image/'))
+  let savedBytes = 0
+
+  for (const image of images) {
+    const compressed = await compressImage(image.fileData, quality)
+    const beforeSize = image.fileSize
+    const afterSize = Math.floor((compressed.length * 3) / 4)
+
+    if (afterSize < beforeSize) {
+      await updateItem<Attachment>(STORE_NAMES.ATTACHMENTS, image.id, {
+        fileData: compressed,
+        fileSize: afterSize,
+      })
+      savedBytes += beforeSize - afterSize
+    }
+  }
+
+  return { count: images.length, savedBytes }
 }

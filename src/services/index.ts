@@ -137,6 +137,8 @@ export {
   compressAllImages,
   formatBytes,
   getStorageWarningLevel,
+  cascadeDeleteBoard,
+  cascadeDeleteCard,
 } from './storage.service'
 
 // Search service

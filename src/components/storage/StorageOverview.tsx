@@ -1,6 +1,36 @@
 import { Cloud, HardDrive } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { formatBytes, getStorageOverview } from '@/services'
 
 export function StorageOverview() {
+  const [storageData, setStorageData] = useState<{
+    total: number
+    boards: number
+    attachments: number
+    archived: number
+    available: number
+    percentUsed: number
+  } | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadStorage = async () => {
+      try {
+        const data = await getStorageOverview()
+        setStorageData(data)
+      } catch (e) {
+        console.error('Failed to load storage:', e)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadStorage()
+  }, [])
+
+  const percentUsed = storageData?.percentUsed ?? 0
+  const usedBytes = storageData?.total ?? 0
+  const freeBytes = storageData?.available ?? 0
+
   return (
     <div className="bg-card border border-border/50 rounded-2xl p-8 space-y-8 shadow-sm h-full flex flex-col items-center justify-center">
       <h3 className="text-sm font-bold text-foreground self-start px-2 uppercase tracking-widest">
@@ -26,16 +56,26 @@ export function StorageOverview() {
             strokeWidth="18"
             fill="transparent"
             strokeDasharray={596.9}
-            strokeDashoffset={596.9 * (1 - 0.64)}
+            strokeDashoffset={596.9 * (1 - percentUsed / 100)}
             className="text-primary transition-all duration-1000 ease-out"
             strokeLinecap="round"
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-5xl font-black tracking-tighter">64%</span>
-          <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mt-1">
-            Used
-          </span>
+          {isLoading ? (
+            <span className="text-2xl font-black tracking-tight">
+              Loading...
+            </span>
+          ) : (
+            <>
+              <span className="text-5xl font-black tracking-tighter">
+                {percentUsed.toFixed(0)}%
+              </span>
+              <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mt-1">
+                Used
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -45,7 +85,9 @@ export function StorageOverview() {
             <HardDrive size={12} className="text-primary" />
             Used
           </div>
-          <p className="text-lg font-black tracking-tight">450 MB</p>
+          <p className="text-lg font-black tracking-tight">
+            {isLoading ? '...' : formatBytes(usedBytes)}
+          </p>
         </div>
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 space-y-1">
           <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-wider">
@@ -53,7 +95,7 @@ export function StorageOverview() {
             Free
           </div>
           <p className="text-lg font-black tracking-tight text-muted-foreground">
-            1.2 GB
+            {isLoading ? '...' : formatBytes(freeBytes)}
           </p>
         </div>
       </div>

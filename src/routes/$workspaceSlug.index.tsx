@@ -7,7 +7,9 @@ export const Route = createFileRoute('/$workspaceSlug/')({
 
 function WorkspaceDashboardPage() {
   // Use data from the parent route which loads the workspace
-  const { workspaceSlug, workspaceId } = useLoaderData({ from: '/$workspaceSlug' })
+  const { workspaceSlug, workspaceId } = useLoaderData({
+    from: '/$workspaceSlug',
+  })
   return (
     <DashboardPage workspaceSlug={workspaceSlug} workspaceId={workspaceId} />
   )

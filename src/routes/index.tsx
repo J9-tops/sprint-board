@@ -22,8 +22,12 @@ export const Route = createFileRoute('/')({
 })
 
 function RootPage() {
-  const { workspaces, activeWorkspace, isLoadingWorkspaces, refreshWorkspaces } =
-    useWorkspaces()
+  const {
+    workspaces,
+    activeWorkspace,
+    isLoadingWorkspaces,
+    refreshWorkspaces,
+  } = useWorkspaces()
   const { openModal } = useModalStore()
   const navigate = useNavigate()
 
@@ -38,9 +42,8 @@ function RootPage() {
   const handleCreateWorkspace = () => {
     openModal('create-workspace', {
       onCreate: async (data: { name: string; color: string }) => {
-        const { createWorkspaceService: createWs } = await import(
-          '@/services/workspace.service'
-        )
+        const { createWorkspaceService: createWs } =
+          await import('@/services/workspace.service')
         await createWs(data.name, data.color)
         await refreshWorkspaces()
       },
