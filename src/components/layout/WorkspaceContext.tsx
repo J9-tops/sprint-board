@@ -16,6 +16,7 @@ interface WorkspaceContextValue {
   workspaces: Array<Workspace>
   activeWorkspaceId: string | null
   activeWorkspace: Workspace | null
+  isLoadingWorkspaces: boolean
   setActiveWorkspace: (id: string | null) => void
   refreshWorkspaces: () => Promise<void>
 }
@@ -33,6 +34,7 @@ export function WorkspaceProvider({ children }: WorkspaceProviderProps) {
   const [activeWorkspaceId, setActiveWorkspaceIdState] = useState<
     string | null
   >(null)
+  const [isLoadingWorkspaces, setIsLoadingWorkspaces] = useState(false)
 
   useEffect(() => {
     loadWorkspaces()
@@ -40,11 +42,14 @@ export function WorkspaceProvider({ children }: WorkspaceProviderProps) {
   }, [])
 
   const loadWorkspaces = async () => {
+    setIsLoadingWorkspaces(true)
     try {
       const ws = await getWorkspacesService()
       setWorkspaces(ws)
     } catch (e) {
       console.error('Failed to load workspaces:', e)
+    } finally {
+      setIsLoadingWorkspaces(false)
     }
   }
 
@@ -84,6 +89,7 @@ export function WorkspaceProvider({ children }: WorkspaceProviderProps) {
         workspaces,
         activeWorkspaceId,
         activeWorkspace,
+        isLoadingWorkspaces,
         setActiveWorkspace,
         refreshWorkspaces: loadWorkspaces,
       }}

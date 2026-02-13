@@ -68,7 +68,6 @@ export function KanbanList({
     setIsEditingTitle(true)
     justStartedEditingRef.current = true
 
-    // Allow blur to trigger after a short delay
     setTimeout(() => {
       justStartedEditingRef.current = false
     }, 200)
@@ -82,7 +81,6 @@ export function KanbanList({
   }
 
   const handleBlur = () => {
-    // Don't save if we just started editing (prevents dropdown close from triggering save)
     if (justStartedEditingRef.current) return
 
     if (isEditingTitle) {
@@ -101,17 +99,14 @@ export function KanbanList({
     setShowDeleteDialog(false)
   }
 
-  // Sync edited title when not in edit mode
   useEffect(() => {
     if (!isEditingTitle) {
       setEditedTitle(title)
     }
   }, [title, isEditingTitle])
 
-  // Focus on title input after dropdown closes and state updates
   useEffect(() => {
     if (isEditingTitle && titleInputRef.current) {
-      // Small delay to ensure dropdown has fully closed
       const timer = setTimeout(() => {
         titleInputRef.current?.focus()
         titleInputRef.current?.select()

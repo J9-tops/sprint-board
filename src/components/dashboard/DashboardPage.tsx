@@ -8,6 +8,7 @@ import { CreateBoardCard } from './CreateBoardCard'
 import { BoardEmptyState } from './BoardEmptyState'
 import type { Board } from '@/db/types/entities'
 import { useModalStore } from '@/stores/modals'
+import { Loading } from '@/components/ui/loading'
 import {
   createBoard,
   deleteBoard,
@@ -26,6 +27,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     const loadBoards = async () => {
+      setIsLoading(true)
       try {
         if (!activeWorkspace || workspaces.length === 0) {
           setIsLoading(false)
@@ -98,7 +100,7 @@ export function DashboardPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-muted-foreground">Loading boards...</div>
+        <Loading size="lg" text="Loading boards..." />
       </div>
     )
   }

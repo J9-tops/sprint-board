@@ -14,6 +14,7 @@ import { BoardListsContainer } from './BoardListsContainer'
 import { BoardDragOverlay } from './BoardDragOverlay'
 import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core'
 import { useBoardStore } from '@/stores/board'
+import { Loading } from '@/components/ui/loading'
 import { getBoardOrThrow } from '@/db'
 
 export function BoardViewPage() {
@@ -64,7 +65,6 @@ export function BoardViewPage() {
   }, [boardId])
 
   useEffect(() => {
-    // Add tab when board is loaded successfully (even if empty)
     if (boardError || !boardTitle || boardTitle === 'Board') return
 
     addTab({
@@ -99,7 +99,6 @@ export function BoardViewPage() {
 
     const sourceListId = activeList.id
 
-    // Check if over a list (for empty lists)
     const targetList = boardData.lists.find((l) => l.id === overId)
     if (targetList && overContainerId !== targetList.id) {
       setOverContainerId(targetList.id)
@@ -112,7 +111,6 @@ export function BoardViewPage() {
       return
     }
 
-    // Check if over a card
     const cardTargetList = boardData.lists.find((l) =>
       l.cards.some((c) => c.id === overId),
     )
@@ -146,13 +144,10 @@ export function BoardViewPage() {
     if (isCard) {
       const sourceListId = activeList.id
 
-      // Check if dropping on a list (for empty lists or appending)
       const targetList = boardData.lists.find((l) => l.id === overId)
       if (targetList) {
-        // Dropping on a list - add to the end
         await reorderCards(sourceListId, draggedId, targetList.id, undefined)
       } else {
-        // Check if dropping on a card
         const cardTargetList = boardData.lists.find((l) =>
           l.cards.some((c) => c.id === overId),
         )
@@ -171,7 +166,7 @@ export function BoardViewPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-muted-foreground">Loading board...</div>
+        <Loading size="lg" text="Loading board..." />
       </div>
     )
   }
