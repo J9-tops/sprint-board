@@ -6,10 +6,12 @@ import {
   Download,
   Eye,
   LayoutGrid,
-  MoreVertical,
+  MoreHorizontal,
   Pencil,
   Search,
   Trash2,
+  Calendar,
+  Layers,
 } from 'lucide-react'
 import {
   AlertDialog,
@@ -43,8 +45,9 @@ import {
   formatBytes,
   getBoardStorageBreakdown,
 } from '@/services'
+import { cn } from '@/lib/utils'
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 8
 
 interface BoardStorageRow {
   boardId: string
@@ -75,8 +78,8 @@ export function BoardStorageTable() {
     setIsLoading(true)
     try {
       const data = await getBoardStorageBreakdown()
-      setBoards(data)
-      setFilteredBoards(data)
+      setBoards(data.sort((a, b) => b.size - a.size)) // Default sort by size desc
+      setFilteredBoards(data.sort((a, b) => b.size - a.size))
     } catch (e) {
       console.error('Failed to load board storage:', e)
     } finally {
@@ -104,6 +107,9 @@ export function BoardStorageTable() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const endIndex = startIndex + ITEMS_PER_PAGE
   const displayedBoards = filteredBoards.slice(startIndex, endIndex)
+  
+  // Calculate max size for relative bars
+  const maxSize = Math.max(...boards.map(b => b.size), 1)
 
   const handleViewBoard = (boardId: string) => {
     navigate({ to: `/board/${boardId}` })
@@ -155,30 +161,22 @@ export function BoardStorageTable() {
 
   const getBoardColor = (index: number): string => {
     const colors = [
-      'bg-blue-500/20 text-blue-500',
-      'bg-purple-500/20 text-purple-500',
-      'bg-green-500/20 text-green-500',
-      'bg-orange-500/20 text-orange-500',
-      'bg-pink-500/20 text-pink-500',
-      'bg-red-500/20 text-red-500',
-      'bg-yellow-500/20 text-yellow-500',
-      'bg-teal-500/20 text-teal-500',
+      'bg-blue-500 text-blue-100',
+      'bg-purple-500 text-purple-100',
+      'bg-emerald-500 text-emerald-100',
+      'bg-orange-500 text-orange-100',
+      'bg-pink-500 text-pink-100',
+      'bg-indigo-500 text-indigo-100',
     ]
     return colors[index % colors.length]
   }
 
   return (
-    <>
-      <div className="bg-card border border-border/50 rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
-        <div className="p-6 flex items-center justify-between border-b border-border/50">
-          <div>
-            <h3 className="font-bold text-base tracking-tight">
-              Storage by Board
-            </h3>
-            <p className="text-xs text-muted-foreground font-medium">
-              Breakdown of space usage per project board.
-            </p>
-          </div>
+    <div className="space-y-4 h-full flex flex-col">
+       <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold tracking-tight text-foreground">
+             Board Storage Details
+          </h3>
           <div className="relative w-64">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -186,30 +184,31 @@ export function BoardStorageTable() {
             />
             <Input
               placeholder="Search boards..."
-              className="h-9 pl-9 bg-muted/50 border-none text-xs"
+              className="h-9 pl-9 bg-muted/50 border-transparent focus:border-primary/20 focus:bg-background transition-all text-sm rounded-xl"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-        </div>
+       </div>
 
-        <div className="flex-1 min-h-[300px]">
+      <div className="bg-card border border-border/50 rounded-2xl shadow-sm overflow-hidden flex-1 flex flex-col">
+        <div className="flex-1 overflow-auto">
           <Table>
-            <TableHeader className="bg-muted/20">
+            <TableHeader className="bg-muted/30">
               <TableRow className="hover:bg-transparent border-b border-border/50">
-                <TableHead className="font-bold text-[10px] uppercase tracking-widest px-6 h-10">
+                <TableHead className="font-bold text-[10px] uppercase tracking-widest px-6 h-11 text-muted-foreground">
                   Board Name
                 </TableHead>
-                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-10 text-center">
+                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-11 text-muted-foreground">
                   Last Modified
                 </TableHead>
-                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-10 text-center">
+                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-11 text-muted-foreground">
                   Items
                 </TableHead>
-                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-10 text-right pr-6">
-                  Disk Size
+                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-11 text-right text-muted-foreground w-48">
+                  Usage
                 </TableHead>
-                <TableHead className="w-10"></TableHead>
+                <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -228,37 +227,58 @@ export function BoardStorageTable() {
                     colSpan={5}
                     className="text-center py-12 text-muted-foreground"
                   >
-                    {searchQuery ? 'No boards found' : 'No boards yet'}
+                    {searchQuery ? 'No boards found matching your search' : 'No boards created yet'}
                   </TableCell>
                 </TableRow>
               ) : (
                 displayedBoards.map((board, index) => (
                   <TableRow
                     key={board.boardId}
-                    className="hover:bg-muted/10 transition-colors border-b border-border/50"
+                    className="group hover:bg-muted/50 transition-colors border-b border-border/50"
                   >
                     <TableCell className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`p-2 rounded-lg ${getBoardColor(index)}`}
+                          className={cn("w-8 h-8 rounded-lg flex items-center justify-center shadow-sm", getBoardColor(index))}
                         >
-                          <LayoutGrid size={16} />
+                          <LayoutGrid size={14} />
                         </div>
-                        <span className="font-bold text-sm tracking-tight">
-                          {board.name}
-                        </span>
+                        <div>
+                            <div className="font-bold text-sm tracking-tight text-foreground">
+                            {board.name}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                                {board.boardId.substring(0, 8)}
+                            </div>
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs font-medium text-muted-foreground text-center">
-                      {formatRelativeTime(board.lastModified)}
+                    <TableCell>
+                         <div className="flex items-center gap-2 text-muted-foreground">
+                            <Calendar size={12} className="opacity-70" />
+                            <span className="text-xs font-medium">{formatRelativeTime(board.lastModified)}</span>
+                         </div>
                     </TableCell>
-                    <TableCell className="text-xs font-bold text-muted-foreground text-center">
-                      {board.cardCount.toLocaleString()}
+                    <TableCell>
+                         <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1.5 min-w-[60px]" title="Cards">
+                                <Layers size={14} className="text-muted-foreground" />
+                                <span className="text-xs font-bold text-foreground">{board.cardCount}</span>
+                            </div>
+                         </div>
                     </TableCell>
                     <TableCell className="text-right pr-6">
-                      <span className="text-sm font-black tracking-tight">
-                        {formatBytes(board.size)}
-                      </span>
+                       <div className="flex flex-col items-end gap-1">
+                          <span className="text-sm font-black tracking-tight font-mono">
+                            {formatBytes(board.size)}
+                          </span>
+                          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-primary/80 rounded-full" 
+                                    style={{ width: `${Math.max((board.size / maxSize) * 100, 1)}%` }} 
+                                />
+                          </div>
+                       </div>
                     </TableCell>
                     <TableCell className="pr-4">
                       <DropdownMenu>
@@ -266,12 +286,12 @@ export function BoardStorageTable() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
                           >
-                            <MoreVertical size={16} />
+                            <MoreHorizontal size={16} />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="w-40">
                           <DropdownMenuItem
                             onClick={() => handleViewBoard(board.boardId)}
                           >
@@ -291,7 +311,7 @@ export function BoardStorageTable() {
                             Export
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="text-red-500 hover:text-red-600"
+                            className="text-red-500 hover:text-red-600 focus:text-red-600 focus:bg-red-500/10"
                             onClick={() => handleDeleteBoard(board)}
                           >
                             <Trash2 size={14} className="mr-2" />
@@ -310,15 +330,13 @@ export function BoardStorageTable() {
         {filteredBoards.length > ITEMS_PER_PAGE && (
           <div className="p-4 border-t border-border/50 flex items-center justify-between bg-muted/5">
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-2">
-              Showing {startIndex + 1}-
-              {Math.min(endIndex, filteredBoards.length)} of{' '}
-              {filteredBoards.length} boards
+              Viewing {startIndex + 1}-{Math.min(endIndex, filteredBoards.length)} of {filteredBoards.length}
             </p>
             <div className="flex gap-1">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 rounded-lg"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
@@ -327,7 +345,7 @@ export function BoardStorageTable() {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 rounded-lg"
                 onClick={() =>
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
@@ -345,8 +363,9 @@ export function BoardStorageTable() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Board</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{boardToDelete?.name}"? This will
-              permanently delete the board and all its data including cards,
+              Are you sure you want to delete <span className="font-bold text-foreground">"{boardToDelete?.name}"</span>? 
+              <br /><br />
+              This will permanently delete the board and all its data including cards,
               attachments, and comments. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -357,11 +376,11 @@ export function BoardStorageTable() {
               onClick={confirmDeleteBoard}
               disabled={isDeleting}
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? 'Deleting...' : 'Delete Board'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   )
 }

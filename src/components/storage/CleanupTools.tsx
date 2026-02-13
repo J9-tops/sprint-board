@@ -1,4 +1,4 @@
-import { Download } from 'lucide-react'
+import { Download, Image as ImageIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,11 +13,10 @@ import {
 } from '@/components/ui/alert-dialog'
 import {
   compressAllImages,
-  deleteArchivedBoards,
-  deleteArchivedCards,
   exportAllBoards,
   formatBytes,
 } from '@/services'
+import { cn } from '@/lib/utils'
 
 export function CleanupTools() {
   const [compressResult, setCompressResult] = useState<{
@@ -25,18 +24,6 @@ export function CleanupTools() {
     savedBytes: number
   } | null>(null)
   const [isCompressing, setIsCompressing] = useState(false)
-
-  const [showDeleteBoardsDialog, setShowDeleteBoardsDialog] = useState(false)
-  const [isDeletingBoards, setIsDeletingBoards] = useState(false)
-  const [deletedBoardsCount, setDeletedBoardsCount] = useState<number | null>(
-    null,
-  )
-
-  const [showDeleteCardsDialog, setShowDeleteCardsDialog] = useState(false)
-  const [isDeletingCards, setIsDeletingCards] = useState(false)
-  const [deletedCardsCount, setDeletedCardsCount] = useState<number | null>(
-    null,
-  )
 
   const [isExporting, setIsExporting] = useState(false)
 
@@ -53,33 +40,7 @@ export function CleanupTools() {
     }
   }
 
-  const handleDeleteArchivedBoards = async () => {
-    setIsDeletingBoards(true)
-    setDeletedBoardsCount(null)
-    try {
-      const count = await deleteArchivedBoards()
-      setDeletedBoardsCount(count)
-      setShowDeleteBoardsDialog(false)
-    } catch (e) {
-      console.error('Failed to delete archived boards:', e)
-    } finally {
-      setIsDeletingBoards(false)
-    }
-  }
 
-  const handleDeleteArchivedCards = async () => {
-    setIsDeletingCards(true)
-    setDeletedCardsCount(null)
-    try {
-      const count = await deleteArchivedCards()
-      setDeletedCardsCount(count)
-      setShowDeleteCardsDialog(false)
-    } catch (e) {
-      console.error('Failed to delete archived cards:', e)
-    } finally {
-      setIsDeletingCards(false)
-    }
-  }
 
   const handleExportAll = async () => {
     setIsExporting(true)
@@ -104,152 +65,85 @@ export function CleanupTools() {
   }
 
   return (
-    <div className="bg-card border border-border/50 rounded-2xl p-6 space-y-6 shadow-sm">
-      <h3 className="text-sm font-bold text-foreground uppercase tracking-widest px-1">
-        Maintenance Tools
-      </h3>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border/50">
-          <div className="space-y-0.5">
-            <h4 className="text-sm font-bold">Compress Images</h4>
-            <p className="text-xs text-muted-foreground font-medium">
-              Reduce size of attachments
-            </p>
-            {compressResult && (
-              <p className="text-[10px] text-green-500 font-medium">
-                Compressed {compressResult.count} images, saved{' '}
-                {formatBytes(compressResult.savedBytes)}
-              </p>
-            )}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="font-bold text-xs px-4 h-8 uppercase tracking-widest"
-            onClick={handleCompressImages}
-            disabled={isCompressing}
-          >
-            {isCompressing ? 'Compressing...' : 'Run'}
-          </Button>
-        </div>
-
-        <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border/50">
-          <div className="space-y-0.5">
-            <h4 className="text-sm font-bold">Clear Archived Boards</h4>
-            <p className="text-xs text-muted-foreground font-medium">
-              Remove old archived boards
-            </p>
-            {deletedBoardsCount !== null && (
-              <p className="text-[10px] text-red-500 font-medium">
-                Deleted {deletedBoardsCount} boards
-              </p>
-            )}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="font-bold text-xs px-4 h-8 uppercase tracking-widest text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20"
-            onClick={() => setShowDeleteBoardsDialog(true)}
-            disabled={isDeletingBoards}
-          >
-            {isDeletingBoards ? 'Deleting...' : 'Delete'}
-          </Button>
-        </div>
-
-        <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border/50">
-          <div className="space-y-0.5">
-            <h4 className="text-sm font-bold">Clear Archived Cards</h4>
-            <p className="text-xs text-muted-foreground font-medium">
-              Remove old archived cards
-            </p>
-            {deletedCardsCount !== null && (
-              <p className="text-[10px] text-red-500 font-medium">
-                Deleted {deletedCardsCount} cards
-              </p>
-            )}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="font-bold text-xs px-4 h-8 uppercase tracking-widest text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20"
-            onClick={() => setShowDeleteCardsDialog(true)}
-            disabled={isDeletingCards}
-          >
-            {isDeletingCards ? 'Deleting...' : 'Delete'}
-          </Button>
-        </div>
-
-        <div className="space-y-3 pt-2">
-          <div className="space-y-0.5 px-1">
-            <h4 className="text-sm font-bold">Data Backup</h4>
-            <p className="text-xs text-muted-foreground font-medium">
-              Create a full JSON export of all boards
-            </p>
-          </div>
-          <Button
-            className="w-full h-11 font-black uppercase tracking-[0.15em] text-xs shadow-lg shadow-primary/20"
-            onClick={handleExportAll}
-            disabled={isExporting}
-          >
-            {isExporting ? (
-              'Exporting...'
-            ) : (
-              <>
-                <Download className="mr-2 h-4 w-4" /> Export All Data
-              </>
-            )}
-          </Button>
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+         <h3 className="text-lg font-bold tracking-tight text-foreground">
+            Cleanup & Maintenance
+         </h3>
       </div>
 
-      <AlertDialog
-        open={showDeleteBoardsDialog}
-        onOpenChange={setShowDeleteBoardsDialog}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete All Archived Boards</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete all archived boards and all their
-              data. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleDeleteArchivedBoards}
-            >
-              Delete All
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Compress Images */}
+        <ActionCard 
+            icon={<ImageIcon className="h-5 w-5 text-blue-500" />}
+            title="Compress Images"
+            description="Reduce size of attachments"
+            actionLabel={isCompressing ? 'Compressing...' : 'Run Compression'}
+            onClick={handleCompressImages}
+            disabled={isCompressing}
+            variant="default"
+        >
+            {compressResult && (
+              <p className="text-xs text-green-600 font-bold mt-2 bg-green-500/10 p-2 rounded-lg inline-block">
+                Saved {formatBytes(compressResult.savedBytes)}
+              </p>
+            )}
+        </ActionCard>
 
-      <AlertDialog
-        open={showDeleteCardsDialog}
-        onOpenChange={setShowDeleteCardsDialog}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete All Archived Cards</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete all archived cards and all their
-              data. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleDeleteArchivedCards}
-            >
-              Delete All
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* Backup */}
+        <ActionCard 
+            icon={<Download className="h-5 w-5 text-green-500" />}
+            title="Export Data"
+            description="Create a full JSON backup"
+            actionLabel={isExporting ? 'Exporting...' : 'Download JSON'}
+            onClick={handleExportAll}
+            disabled={isExporting}
+            variant="primary"
+        />
+      </div>{/* End Grid */}
     </div>
   )
+}
+
+interface ActionCardProps {
+    icon: React.ReactNode
+    title: string
+    description: string
+    actionLabel: string
+    onClick: () => void
+    disabled?: boolean
+    children?: React.ReactNode
+    variant?: 'default' | 'danger' | 'primary'
+}
+
+function ActionCard({ icon, title, description, actionLabel, onClick, disabled, children, variant = 'default' }: ActionCardProps) {
+    return (
+        <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between h-full group">
+            <div className="space-y-3">
+                <div className="bg-muted/30 w-10 h-10 rounded-xl flex items-center justify-center group-hover:bg-muted/50 transition-colors">
+                    {icon}
+                </div>
+                <div className="space-y-1">
+                    <h4 className="font-bold text-sm tracking-tight">{title}</h4>
+                    <p className="text-xs text-muted-foreground font-medium pr-4">{description}</p>
+                </div>
+                {children}
+            </div>
+            
+            <div className="pt-6 mt-auto">
+                 <Button 
+                    variant={variant === 'danger' ? 'destructive' : variant === 'primary' ? 'default' : 'outline'}
+                    size="sm"
+                    className={cn(
+                        "w-full font-bold text-xs h-9", 
+                        variant === 'default' && "bg-transparent border-primary/20 hover:bg-primary/5 text-primary"
+                    )}
+                    onClick={onClick}
+                    disabled={disabled}
+                >
+                    {actionLabel}
+                 </Button>
+            </div>
+        </div>
+    )
 }

@@ -23,7 +23,7 @@ import type {
 
 /** Get browser storage estimate */
 export async function getStorageEstimate(): Promise<StorageEstimate> {
-  if (!navigator.storage?.estimate) return { quota: 0, usage: 0 }
+  // navigator.storage.estimate is standard in modern browsers
   return navigator.storage.estimate()
 }
 
@@ -33,14 +33,17 @@ export async function calculateStorageUsage(): Promise<StorageBreakdown> {
   const available = estimate.quota || 0
   const total = estimate.usage || 0
 
-  const boards = await calculateDataSize()
-  const attachments = await calculateAttachmentsSize()
+  const { size: boards, count: boardCount } = await calculateDataSize()
+  const { size: attachments, count: attachmentCount } =
+    await calculateAttachmentsSize()
   const archived = await calculateArchivedSize()
 
   return {
     total,
     boards,
+    boardCount,
     attachments,
+    attachmentCount,
     archived,
     available,
     percentUsed: available > 0 ? (total / available) * 100 : 0,
@@ -48,7 +51,7 @@ export async function calculateStorageUsage(): Promise<StorageBreakdown> {
 }
 
 /** Calculate size of non-attachment data */
-async function calculateDataSize(): Promise<number> {
+async function calculateDataSize(): Promise<{ size: number; count: number }> {
   const boards = await getAllItems<Board>(STORE_NAMES.BOARDS)
   const lists = await getAllItems<List>(STORE_NAMES.LISTS)
   const cards = await getItemsWithFilter<Card>(
@@ -59,13 +62,22 @@ async function calculateDataSize(): Promise<number> {
   const checklists = await getAllItems<Checklist>(STORE_NAMES.CHECKLISTS)
   const items = await getAllItems<ChecklistItem>(STORE_NAMES.CHECKLIST_ITEMS)
 
-  return estimateSize({ boards, lists, cards, labels, checklists, items })
+  return {
+    size: estimateSize({ boards, lists, cards, labels, checklists, items }),
+    count: boards.length,
+  }
 }
 
 /** Calculate total attachment size */
-async function calculateAttachmentsSize(): Promise<number> {
+async function calculateAttachmentsSize(): Promise<{
+  size: number
+  count: number
+}> {
   const attachments = await getAllItems<Attachment>(STORE_NAMES.ATTACHMENTS)
-  return attachments.reduce((sum, att) => sum + (att.fileSize || 0), 0)
+  return {
+    size: attachments.reduce((sum, att) => sum + (att.fileSize || 0), 0),
+    count: attachments.length,
+  }
 }
 
 /** Calculate archived data size */

@@ -47,7 +47,9 @@ export interface CardFilters {
 export interface StorageBreakdown {
   total: number
   boards: number
+  boardCount: number
   attachments: number
+  attachmentCount: number
   archived: number
   available: number
   percentUsed: number
