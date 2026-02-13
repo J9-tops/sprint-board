@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceSlugRouteImport } from './routes/$workspaceSlug'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkspaceSlugIndexRouteImport } from './routes/$workspaceSlug.index'
 import { Route as SettingsStorageRouteImport } from './routes/settings.storage'
 import { Route as BoardBoardIdRouteImport } from './routes/board.$boardId'
 import { Route as WorkspaceSlugBoardIdRouteImport } from './routes/$workspaceSlug.$boardId'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const WorkspaceSlugIndexRoute = WorkspaceSlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WorkspaceSlugRoute,
 } as any)
 const SettingsStorageRoute = SettingsStorageRouteImport.update({
   id: '/settings/storage',
@@ -47,13 +53,14 @@ export interface FileRoutesByFullPath {
   '/$workspaceSlug/$boardId': typeof WorkspaceSlugBoardIdRoute
   '/board/$boardId': typeof BoardBoardIdRoute
   '/settings/storage': typeof SettingsStorageRoute
+  '/$workspaceSlug/': typeof WorkspaceSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/$workspaceSlug': typeof WorkspaceSlugRouteWithChildren
   '/$workspaceSlug/$boardId': typeof WorkspaceSlugBoardIdRoute
   '/board/$boardId': typeof BoardBoardIdRoute
   '/settings/storage': typeof SettingsStorageRoute
+  '/$workspaceSlug': typeof WorkspaceSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,6 +69,7 @@ export interface FileRoutesById {
   '/$workspaceSlug/$boardId': typeof WorkspaceSlugBoardIdRoute
   '/board/$boardId': typeof BoardBoardIdRoute
   '/settings/storage': typeof SettingsStorageRoute
+  '/$workspaceSlug/': typeof WorkspaceSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,13 +79,14 @@ export interface FileRouteTypes {
     | '/$workspaceSlug/$boardId'
     | '/board/$boardId'
     | '/settings/storage'
+    | '/$workspaceSlug/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/$workspaceSlug'
     | '/$workspaceSlug/$boardId'
     | '/board/$boardId'
     | '/settings/storage'
+    | '/$workspaceSlug'
   id:
     | '__root__'
     | '/'
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
     | '/$workspaceSlug/$boardId'
     | '/board/$boardId'
     | '/settings/storage'
+    | '/$workspaceSlug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -109,6 +119,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/$workspaceSlug/': {
+      id: '/$workspaceSlug/'
+      path: '/'
+      fullPath: '/$workspaceSlug/'
+      preLoaderRoute: typeof WorkspaceSlugIndexRouteImport
+      parentRoute: typeof WorkspaceSlugRoute
     }
     '/settings/storage': {
       id: '/settings/storage'
@@ -136,10 +153,12 @@ declare module '@tanstack/react-router' {
 
 interface WorkspaceSlugRouteChildren {
   WorkspaceSlugBoardIdRoute: typeof WorkspaceSlugBoardIdRoute
+  WorkspaceSlugIndexRoute: typeof WorkspaceSlugIndexRoute
 }
 
 const WorkspaceSlugRouteChildren: WorkspaceSlugRouteChildren = {
   WorkspaceSlugBoardIdRoute: WorkspaceSlugBoardIdRoute,
+  WorkspaceSlugIndexRoute: WorkspaceSlugIndexRoute,
 }
 
 const WorkspaceSlugRouteWithChildren = WorkspaceSlugRoute._addFileChildren(

@@ -1,6 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { getWorkspaceBySlugOrThrow } from '@/db'
-import { DashboardPage } from '@/components/dashboard/DashboardPage'
 
 export const Route = createFileRoute('/$workspaceSlug')({
   loader: async ({ params }) => {
@@ -10,12 +9,9 @@ export const Route = createFileRoute('/$workspaceSlug')({
     const workspace = await getWorkspaceBySlugOrThrow(params.workspaceSlug)
     return { workspaceSlug: params.workspaceSlug, workspaceId: workspace.id }
   },
-  component: WorkspaceDashboardPage,
+  component: WorkspaceLayout,
 })
 
-function WorkspaceDashboardPage() {
-  const { workspaceSlug, workspaceId } = Route.useLoaderData()
-  return (
-    <DashboardPage workspaceSlug={workspaceSlug} workspaceId={workspaceId} />
-  )
+function WorkspaceLayout() {
+  return <Outlet />
 }

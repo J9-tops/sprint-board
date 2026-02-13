@@ -26,24 +26,37 @@ export function DashboardPage({
   workspaceSlug,
   workspaceId: propWorkspaceId,
 }: DashboardPageProps = {}) {
-  const { workspaces, activeWorkspace, setActiveWorkspace, refreshWorkspaces } =
-    useWorkspaces()
+  const {
+    workspaces,
+    activeWorkspace,
+    setActiveWorkspace,
+    refreshWorkspaces,
+    isLoadingWorkspaces,
+  } = useWorkspaces()
   const [starredBoards, setStarredBoards] = useState<Array<Board>>([])
   const [allBoards, setAllBoards] = useState<Array<Board>>([])
   const [isLoading, setIsLoading] = useState(true)
   const { openModal, closeModal } = useModalStore()
 
-  const workspaceId = propWorkspaceId || activeWorkspace?.id || null
+  const workspaceId =
+    propWorkspaceId ||
+    (workspaceSlug
+      ? workspaces.find((w) => w.slug === workspaceSlug)?.id
+      : activeWorkspace?.id) ||
+    null
 
   useEffect(() => {
     const loadBoards = async () => {
+      if (!workspaceId) {
+        // If we're still loading workspaces, don't stop loading yet
+        if (!isLoadingWorkspaces) {
+          setIsLoading(false)
+        }
+        return
+      }
+
       setIsLoading(true)
       try {
-        if (!workspaceId) {
-          setIsLoading(false)
-          return
-        }
-
         const [starred, workspaceBoards] = await Promise.all([
           getStarredBoards(),
           getBoardsByWorkspace(workspaceId),
@@ -58,7 +71,7 @@ export function DashboardPage({
     }
 
     loadBoards()
-  }, [workspaceId])
+  }, [workspaceId, isLoadingWorkspaces])
 
   const handleCreateBoard = async (data: {
     title: string
@@ -107,7 +120,7 @@ export function DashboardPage({
     }
   }
 
-  if (isLoading) {
+  if (isLoading || isLoadingWorkspaces) {
     return (
       <div className="flex items-center justify-center h-full">
         <Loading size="lg" text="Loading boards..." />

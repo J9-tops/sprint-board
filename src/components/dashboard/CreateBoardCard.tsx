@@ -34,7 +34,7 @@ export function CreateBoardCard() {
       </h3>
 
       <p className="text-sm text-muted-foreground mt-1 max-w-[140px]">
-        Add a new project workspace
+        Add a new board
       </p>
 
       <div className="absolute inset-0 rounded-2xl bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />

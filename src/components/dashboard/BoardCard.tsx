@@ -85,12 +85,10 @@ export function BoardCard({
                 <button
                   onClick={handleStarClick}
                   className={cn(
-                    'text-white/80 hover:text-white transition-all p-1.5 rounded-xl hover:bg-white/10 outline-none transform active:scale-90',
-                    starred && [
-                      'text-yellow-300',
-                      'drop-shadow-[0_0_12px_rgba(253,224,71,0.8)]',
-                      'hover:text-yellow-200',
-                    ],
+                    'transition-all p-1.5 rounded-xl hover:bg-white/10 outline-none transform active:scale-90',
+                    starred
+                      ? 'text-yellow-300 drop-shadow-[0_0_12px_rgba(253,224,71,0.8)] hover:text-yellow-200'
+                      : 'text-white/80 hover:text-white',
                   )}
                   aria-label={starred ? 'Unstar board' : 'Star board'}
                 >

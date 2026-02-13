@@ -24,7 +24,7 @@ interface BoardViewPageProps {
 export function BoardViewPage({
   boardId: propBoardId,
 }: BoardViewPageProps = {}) {
-  const { boardId: paramBoardId } = useParams({ from: '/board/$boardId' })
+  const { boardId: paramBoardId } = useParams({ strict: false })
   const boardId = propBoardId || paramBoardId
   const { addTab } = useTabs()
   const location = useLocation()

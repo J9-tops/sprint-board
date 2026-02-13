@@ -6,6 +6,9 @@ import { useWorkspaces } from '@/components/layout/WorkspaceContext'
 
 export const Route = createFileRoute('/$workspaceSlug/$boardId')({
   loader: async ({ params }) => {
+    if (typeof window === 'undefined') {
+      return { workspaceId: undefined }
+    }
     const workspace = await getWorkspaceBySlugOrThrow(params.workspaceSlug)
     return { workspaceId: workspace.id }
   },
