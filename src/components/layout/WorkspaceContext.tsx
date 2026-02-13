@@ -10,6 +10,7 @@ interface Workspace {
   id: string
   name: string
   color: string
+  slug: string
 }
 
 interface WorkspaceContextValue {
@@ -34,7 +35,7 @@ export function WorkspaceProvider({ children }: WorkspaceProviderProps) {
   const [activeWorkspaceId, setActiveWorkspaceIdState] = useState<
     string | null
   >(null)
-  const [isLoadingWorkspaces, setIsLoadingWorkspaces] = useState(false)
+  const [isLoadingWorkspaces, setIsLoadingWorkspaces] = useState(true)
 
   useEffect(() => {
     loadWorkspaces()

@@ -9,10 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkspaceSlugRouteImport } from './routes/$workspaceSlug'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsStorageRouteImport } from './routes/settings.storage'
 import { Route as BoardBoardIdRouteImport } from './routes/board.$boardId'
+import { Route as WorkspaceSlugBoardIdRouteImport } from './routes/$workspaceSlug.$boardId'
 
+const WorkspaceSlugRoute = WorkspaceSlugRouteImport.update({
+  id: '/$workspaceSlug',
+  path: '/$workspaceSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -28,39 +35,74 @@ const BoardBoardIdRoute = BoardBoardIdRouteImport.update({
   path: '/board/$boardId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkspaceSlugBoardIdRoute = WorkspaceSlugBoardIdRouteImport.update({
+  id: '/$boardId',
+  path: '/$boardId',
+  getParentRoute: () => WorkspaceSlugRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$workspaceSlug': typeof WorkspaceSlugRouteWithChildren
+  '/$workspaceSlug/$boardId': typeof WorkspaceSlugBoardIdRoute
   '/board/$boardId': typeof BoardBoardIdRoute
   '/settings/storage': typeof SettingsStorageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$workspaceSlug': typeof WorkspaceSlugRouteWithChildren
+  '/$workspaceSlug/$boardId': typeof WorkspaceSlugBoardIdRoute
   '/board/$boardId': typeof BoardBoardIdRoute
   '/settings/storage': typeof SettingsStorageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$workspaceSlug': typeof WorkspaceSlugRouteWithChildren
+  '/$workspaceSlug/$boardId': typeof WorkspaceSlugBoardIdRoute
   '/board/$boardId': typeof BoardBoardIdRoute
   '/settings/storage': typeof SettingsStorageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/board/$boardId' | '/settings/storage'
+  fullPaths:
+    | '/'
+    | '/$workspaceSlug'
+    | '/$workspaceSlug/$boardId'
+    | '/board/$boardId'
+    | '/settings/storage'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/board/$boardId' | '/settings/storage'
-  id: '__root__' | '/' | '/board/$boardId' | '/settings/storage'
+  to:
+    | '/'
+    | '/$workspaceSlug'
+    | '/$workspaceSlug/$boardId'
+    | '/board/$boardId'
+    | '/settings/storage'
+  id:
+    | '__root__'
+    | '/'
+    | '/$workspaceSlug'
+    | '/$workspaceSlug/$boardId'
+    | '/board/$boardId'
+    | '/settings/storage'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  WorkspaceSlugRoute: typeof WorkspaceSlugRouteWithChildren
   BoardBoardIdRoute: typeof BoardBoardIdRoute
   SettingsStorageRoute: typeof SettingsStorageRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/$workspaceSlug': {
+      id: '/$workspaceSlug'
+      path: '/$workspaceSlug'
+      fullPath: '/$workspaceSlug'
+      preLoaderRoute: typeof WorkspaceSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -82,11 +124,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoardBoardIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$workspaceSlug/$boardId': {
+      id: '/$workspaceSlug/$boardId'
+      path: '/$boardId'
+      fullPath: '/$workspaceSlug/$boardId'
+      preLoaderRoute: typeof WorkspaceSlugBoardIdRouteImport
+      parentRoute: typeof WorkspaceSlugRoute
+    }
   }
 }
 
+interface WorkspaceSlugRouteChildren {
+  WorkspaceSlugBoardIdRoute: typeof WorkspaceSlugBoardIdRoute
+}
+
+const WorkspaceSlugRouteChildren: WorkspaceSlugRouteChildren = {
+  WorkspaceSlugBoardIdRoute: WorkspaceSlugBoardIdRoute,
+}
+
+const WorkspaceSlugRouteWithChildren = WorkspaceSlugRoute._addFileChildren(
+  WorkspaceSlugRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  WorkspaceSlugRoute: WorkspaceSlugRouteWithChildren,
   BoardBoardIdRoute: BoardBoardIdRoute,
   SettingsStorageRoute: SettingsStorageRoute,
 }

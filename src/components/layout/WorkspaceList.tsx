@@ -1,5 +1,5 @@
 import { MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react'
-import { useLocation } from '@tanstack/react-router'
+import { useLocation, useNavigate } from '@tanstack/react-router'
 import { useWorkspaces } from './WorkspaceContext'
 import { useTabs } from './TabsContext'
 import { Button } from '@/components/ui/button'
@@ -22,6 +22,7 @@ export function WorkspaceList() {
   const { openModal, closeModal } = useModalStore()
   const { tabs, closeTab } = useTabs()
   const location = useLocation()
+  const navigate = useNavigate()
 
   const handleCreateWorkspace = () => {
     openModal('create-workspace', {
@@ -31,6 +32,7 @@ export function WorkspaceList() {
         const newWorkspace = await createWs(data.name, data.color)
         setActiveWorkspace(newWorkspace.id)
         refreshWorkspaces()
+        navigate({ to: `/${newWorkspace.slug}` })
         closeModal()
       },
     })
@@ -67,10 +69,22 @@ export function WorkspaceList() {
 
         if (activeWorkspaceId === workspaceId) {
           setActiveWorkspace(null)
+
+          const remainingWorkspaces = workspaces.filter(
+            (ws) => ws.id !== workspaceId,
+          )
+          if (remainingWorkspaces.length > 0) {
+            navigate({ to: `/${remainingWorkspaces[0].slug}` })
+          } else {
+            navigate({ to: '/' })
+          }
         }
 
         // Close board tab if currently viewing a board (which may belong to deleted workspace)
-        if (location.pathname.startsWith('/board/')) {
+        if (
+          location.pathname.startsWith('/board/') ||
+          location.pathname.match(/^\/[^/]+\/[^/]+$/)
+        ) {
           const boardTab = tabs.find((t) => t.path === location.pathname)
           if (boardTab) {
             closeTab(boardTab.id)
@@ -108,7 +122,7 @@ export function WorkspaceList() {
                 ? 'bg-accent text-accent-foreground'
                 : 'text-muted-foreground hover:text-foreground',
             )}
-            onClick={() => setActiveWorkspace(ws.id)}
+            onClick={() => navigate({ to: `/${ws.slug}` })}
           >
             <div
               className="w-2 h-2 rounded-full"

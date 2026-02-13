@@ -17,7 +17,15 @@ import {
   toggleStar,
 } from '@/services/board.service'
 
-export function DashboardPage() {
+interface DashboardPageProps {
+  workspaceSlug?: string
+  workspaceId?: string
+}
+
+export function DashboardPage({
+  workspaceSlug,
+  workspaceId: propWorkspaceId,
+}: DashboardPageProps = {}) {
   const { workspaces, activeWorkspace, setActiveWorkspace, refreshWorkspaces } =
     useWorkspaces()
   const [starredBoards, setStarredBoards] = useState<Array<Board>>([])
@@ -25,18 +33,20 @@ export function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const { openModal, closeModal } = useModalStore()
 
+  const workspaceId = propWorkspaceId || activeWorkspace?.id || null
+
   useEffect(() => {
     const loadBoards = async () => {
       setIsLoading(true)
       try {
-        if (!activeWorkspace || workspaces.length === 0) {
+        if (!workspaceId) {
           setIsLoading(false)
           return
         }
 
         const [starred, workspaceBoards] = await Promise.all([
           getStarredBoards(),
-          getBoardsByWorkspace(activeWorkspace.id),
+          getBoardsByWorkspace(workspaceId),
         ])
         setStarredBoards(starred)
         setAllBoards(workspaceBoards)
@@ -48,7 +58,7 @@ export function DashboardPage() {
     }
 
     loadBoards()
-  }, [activeWorkspace, workspaces])
+  }, [workspaceId])
 
   const handleCreateBoard = async (data: {
     title: string
@@ -58,7 +68,7 @@ export function DashboardPage() {
       data.title,
       data.background,
       '',
-      activeWorkspace?.id || null,
+      workspaceId || null,
     )
     setAllBoards([newBoard, ...allBoards])
   }
@@ -157,6 +167,7 @@ export function DashboardPage() {
                   starred={board.isStarred}
                   onToggleStar={() => handleToggleStar(board.id)}
                   onDelete={() => handleDelete(board.id)}
+                  workspaceSlug={workspaceSlug}
                 />
               </div>
             ))}
@@ -185,6 +196,7 @@ export function DashboardPage() {
                 starred={board.isStarred}
                 onToggleStar={() => handleToggleStar(board.id)}
                 onDelete={() => handleDelete(board.id)}
+                workspaceSlug={workspaceSlug}
               />
             </div>
           ))}

@@ -5,6 +5,8 @@
 export {
   createWorkspace,
   getWorkspace,
+  getWorkspaceBySlug,
+  getWorkspaceBySlugOrThrow,
   getWorkspaceOrThrow,
   getAllWorkspaces,
   updateWorkspace,

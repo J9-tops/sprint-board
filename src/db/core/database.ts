@@ -5,6 +5,7 @@
 
 import { DB_NAME, DB_VERSION, STORE_NAMES } from './constants'
 import { DatabaseError } from './errors'
+import { generateSlug } from '@/lib/slug'
 
 let dbInstance: IDBDatabase | null = null
 
@@ -12,6 +13,10 @@ let dbInstance: IDBDatabase | null = null
  * Initialize and return the IndexedDB database instance.
  */
 export async function initDB(): Promise<IDBDatabase> {
+  if (typeof window === 'undefined') {
+    throw new Error('Cannot init DB on server')
+  }
+
   if (dbInstance) return dbInstance
 
   return new Promise((resolve, reject) => {
@@ -33,9 +38,16 @@ export async function initDB(): Promise<IDBDatabase> {
 
       createStores(db)
 
-      // Migration from v1 to v2
-      if (oldVersion < 2 && transaction) {
-        migrateToV2(transaction)
+      if (transaction) {
+        // Migration from v1 to v2: Add workspace support
+        if (oldVersion < 2) {
+          migrateToV2(transaction)
+        }
+
+        // Migration from v2 to v3: Add slug field to workspaces
+        if (oldVersion < 3) {
+          migrateToV3(transaction)
+        }
       }
     }
   })
@@ -96,6 +108,45 @@ function migrateToV2(transaction: IDBTransaction): void {
   }
 }
 
+/**
+ * Migration from v2 to v3: Add slug field to workspaces.
+ * Generates unique slugs for all existing workspaces.
+ */
+function migrateToV3(transaction: IDBTransaction): void {
+  const workspacesStore = transaction.objectStore(STORE_NAMES.WORKSPACES)
+
+  if (!workspacesStore.indexNames.contains('slug')) {
+    workspacesStore.createIndex('slug', 'slug', { unique: true })
+  }
+
+  const getAllRequest = workspacesStore.getAll()
+  getAllRequest.onsuccess = () => {
+    const workspaces = getAllRequest.result as Array<{
+      id: string
+      name: string
+      color: string
+      position: number
+      createdAt: number
+      updatedAt: number
+    }>
+
+    const existingSlugs: Array<string> = []
+
+    workspaces.forEach((workspace) => {
+      const slug = generateSlug(workspace.name, existingSlugs)
+      existingSlugs.push(slug)
+
+      const updatedWorkspace = {
+        ...workspace,
+        slug,
+        updatedAt: Date.now(),
+      }
+
+      workspacesStore.put(updatedWorkspace)
+    })
+  }
+}
+
 /** Create all object stores and indexes */
 function createStores(db: IDBDatabase): void {
   // Workspaces
@@ -104,6 +155,7 @@ function createStores(db: IDBDatabase): void {
       keyPath: 'id',
     })
     store.createIndex('position', 'position', { unique: false })
+    store.createIndex('slug', 'slug', { unique: true })
   }
 
   // Boards

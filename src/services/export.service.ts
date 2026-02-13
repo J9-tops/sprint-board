@@ -199,6 +199,7 @@ export async function importBoard(data: ExportedBoard): Promise<Board> {
     isStarred: false,
     isArchived: false,
     position: 0,
+    workspaceId: null,
   })
 
   // Create labels and map names to IDs

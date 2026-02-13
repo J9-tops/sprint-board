@@ -15,6 +15,7 @@ import {
   updateItem,
 } from '../core'
 import type { CreateWorkspaceInput, Workspace } from '../types'
+import { generateSlug } from '@/lib/slug'
 
 export async function createWorkspace(
   data: CreateWorkspaceInput,
@@ -23,9 +24,13 @@ export async function createWorkspace(
   const maxPosition =
     existing.length > 0 ? Math.max(...existing.map((ws) => ws.position)) : 0
 
+  const existingSlugs = existing.map((ws) => ws.slug)
+  const slug = data.slug || generateSlug(data.name, existingSlugs)
+
   const workspace: Workspace = {
     ...data,
     id: generateId(),
+    slug,
     position: maxPosition + POSITION_GAP,
     createdAt: now(),
     updatedAt: now(),
@@ -37,6 +42,23 @@ export async function createWorkspace(
 
 export async function getWorkspace(id: string): Promise<Workspace | undefined> {
   return getItem<Workspace>(STORE_NAMES.WORKSPACES, id)
+}
+
+export async function getWorkspaceBySlug(
+  slug: string,
+): Promise<Workspace | undefined> {
+  const allWorkspaces = await getAllWorkspaces()
+  return allWorkspaces.find((ws) => ws.slug === slug)
+}
+
+export async function getWorkspaceBySlugOrThrow(
+  slug: string,
+): Promise<Workspace> {
+  const workspace = await getWorkspaceBySlug(slug)
+  if (!workspace) {
+    throw new Error(`Workspace with slug '${slug}' not found`)
+  }
+  return workspace
 }
 
 export async function getWorkspaceOrThrow(id: string): Promise<Workspace> {

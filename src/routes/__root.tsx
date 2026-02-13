@@ -10,7 +10,6 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import { Sidebar } from '../components/layout/Sidebar'
-import { DashboardPage } from '../components/dashboard/DashboardPage'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
@@ -131,13 +130,5 @@ function AppShell() {
 }
 
 function OutletWrapper() {
-  const { activeTabId } = useTabs()
-  const location = useLocation()
-
-  // Show Dashboard when no tab is active (deselected state) and on home route
-  if (!activeTabId && location.pathname === '/') {
-    return <DashboardPage />
-  }
-
   return <Outlet />
 }

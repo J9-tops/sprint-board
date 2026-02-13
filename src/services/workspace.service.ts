@@ -20,12 +20,13 @@ import {
 export async function createWorkspaceService(
   name: string,
   color: string,
-): Promise<{ id: string; name: string; color: string }> {
+): Promise<{ id: string; name: string; color: string; slug: string }> {
   const workspace = await createWorkspace({ name, color, position: 0 })
   return {
     id: workspace.id,
     name: workspace.name,
     color: workspace.color,
+    slug: workspace.slug,
   }
 }
 
@@ -33,13 +34,14 @@ export async function createWorkspaceService(
  * Get all workspaces.
  */
 export async function getWorkspaces(): Promise<
-  Array<{ id: string; name: string; color: string }>
+  Array<{ id: string; name: string; color: string; slug: string }>
 > {
   const workspaces = await getAllWorkspaces()
   return workspaces.map((w) => ({
     id: w.id,
     name: w.name,
     color: w.color,
+    slug: w.slug,
   }))
 }
 
@@ -49,12 +51,13 @@ export async function getWorkspaces(): Promise<
 export async function updateWorkspaceService(
   workspaceId: string,
   updates: { name?: string; color?: string },
-): Promise<{ id: string; name: string; color: string }> {
+): Promise<{ id: string; name: string; color: string; slug: string }> {
   const workspace = await updateWorkspace(workspaceId, updates)
   return {
     id: workspace.id,
     name: workspace.name,
     color: workspace.color,
+    slug: workspace.slug,
   }
 }
 

@@ -3,7 +3,7 @@
  */
 
 export const DB_NAME = 'sprint-board-db'
-export const DB_VERSION = 2
+export const DB_VERSION = 3
 
 /** Object store names for type-safe access */
 export const STORE_NAMES = {

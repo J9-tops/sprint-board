@@ -1,4 +1,5 @@
-import { ComponentType, Suspense, lazy } from 'react'
+import { Suspense, lazy } from 'react'
+import type { ComponentType } from 'react'
 import type { LottieComponentProps } from 'lottie-react'
 import loadingAnimation from '@/assets/loading.json'
 import { cn } from '@/lib/utils'
@@ -12,11 +13,12 @@ const Lottie = lazy(() =>
   import('lottie-react').then((m) => {
     const resolved = m.default as unknown as Record<string, unknown>
     const Component =
-      typeof resolved === 'function' ? resolved : resolved?.default ?? resolved
+      typeof resolved === 'function'
+        ? resolved
+        : (resolved?.default ?? resolved)
     return { default: Component as ComponentType<LottieComponentProps> }
   }),
 )
-
 
 interface LoadingProps {
   size?: 'sm' | 'md' | 'lg' | 'full'

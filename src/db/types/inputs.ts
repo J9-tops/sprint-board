@@ -15,8 +15,8 @@ import type {
 /** Input type for creating entities (omits auto-generated fields) */
 export type CreateWorkspaceInput = Omit<
   Workspace,
-  'id' | 'createdAt' | 'updatedAt'
->
+  'id' | 'slug' | 'createdAt' | 'updatedAt'
+> & { slug?: string }
 export type CreateBoardInput = Omit<Board, 'id' | 'createdAt' | 'updatedAt'>
 export type CreateListInput = Omit<List, 'id' | 'createdAt' | 'updatedAt'>
 export type CreateCardInput = Omit<Card, 'id' | 'createdAt' | 'updatedAt'>

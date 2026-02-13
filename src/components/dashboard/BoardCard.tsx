@@ -29,6 +29,7 @@ interface BoardCardProps {
   labelColor?: string
   onToggleStar?: () => void
   onDelete?: () => void
+  workspaceSlug?: string
 }
 
 export function BoardCard({
@@ -40,6 +41,7 @@ export function BoardCard({
   labelColor,
   onToggleStar,
   onDelete,
+  workspaceSlug,
 }: BoardCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
@@ -59,8 +61,10 @@ export function BoardCard({
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <Link
-            to="/board/$boardId"
-            params={{ boardId: id }}
+            to={workspaceSlug ? '/$workspaceSlug/$boardId' : '/board/$boardId'}
+            params={
+              workspaceSlug ? { workspaceSlug, boardId: id } : { boardId: id }
+            }
             className="block group outline-none"
           >
             <div

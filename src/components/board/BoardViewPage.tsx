@@ -17,8 +17,15 @@ import { useBoardStore } from '@/stores/board'
 import { Loading } from '@/components/ui/loading'
 import { getBoardOrThrow } from '@/db'
 
-export function BoardViewPage() {
-  const { boardId } = useParams({ from: '/board/$boardId' })
+interface BoardViewPageProps {
+  boardId?: string
+}
+
+export function BoardViewPage({
+  boardId: propBoardId,
+}: BoardViewPageProps = {}) {
+  const { boardId: paramBoardId } = useParams({ from: '/board/$boardId' })
+  const boardId = propBoardId || paramBoardId
   const { addTab } = useTabs()
   const location = useLocation()
   const reorderCards = useBoardStore((state) => state.reorderCards)

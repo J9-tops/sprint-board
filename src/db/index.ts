@@ -75,6 +75,8 @@ export {
   // Workspaces
   createWorkspace,
   getWorkspace,
+  getWorkspaceBySlug,
+  getWorkspaceBySlugOrThrow,
   getWorkspaceOrThrow,
   getAllWorkspaces,
   updateWorkspace,
