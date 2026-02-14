@@ -21,7 +21,7 @@ export function SidebarMenu() {
           {item.isHome ? (
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 h-11 px-3 text-sm text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary"
+              className="w-full justify-start gap-3 h-11 px-3 text-sm text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
               onClick={() => deselectAllTabs()}
             >
               <item.icon
@@ -42,7 +42,7 @@ export function SidebarMenu() {
               {({ isActive }) => (
                 <Button
                   variant={isActive ? 'secondary' : 'ghost'}
-                  className="w-full justify-start gap-3 h-11 px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary"
+                  className="w-full justify-start gap-3 h-11 px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
                 >
                   <item.icon
                     size={18}

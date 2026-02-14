@@ -42,7 +42,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <KanbanSquare size={20} />
               </div>
               <span className="font-bold text-xl tracking-tight text-foreground select-none">
-                TaskMaster
+                SprintBoard
               </span>
             </div>
             <Button
@@ -55,18 +55,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </Button>
           </div>
 
-          <div className="px-2 shrink-0">
-            <div className="relative group">
-              <Filter
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors"
-                size={14}
-              />
-              <Input
-                placeholder="Filter boards..."
-                className="pl-9 h-9 bg-muted/50 border-none text-xs focus-visible:ring-2 focus-visible:ring-primary transition-all focus-visible:bg-background"
-              />
-            </div>
-          </div>
 
           <div className="flex-1 flex flex-col gap-8 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/10 hover:scrollbar-thumb-muted-foreground/20">
             <SidebarMenu />

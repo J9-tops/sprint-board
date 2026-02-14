@@ -33,7 +33,7 @@ export function WelcomeScreen({ onCreateFirstBoard }: WelcomeScreenProps) {
           <KanbanSquare size={40} />
         </div>
         <h1 className="text-5xl font-black tracking-tighter">
-          Welcome to KanbanOffline
+          Welcome to Sprintboard
         </h1>
         <p className="text-xl text-muted-foreground font-medium leading-relaxed">
           The simple, private, and lightning-fast way to organize your projects.

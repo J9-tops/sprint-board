@@ -36,7 +36,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             <KanbanSquare size={18} />
           </div>
           <span className="hidden sm:inline font-bold text-xl tracking-tight text-foreground select-none">
-            TaskMaster
+            SprintBoard
           </span>
         </Link>
 

@@ -1,26 +1,16 @@
 import { useEffect, useState } from 'react'
 import {
-  ArrowDownWideNarrow,
   ChevronRight,
-  Filter,
   Home,
   Menu,
   Moon,
-  Settings,
   Star,
   Sun,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useNavigate } from '@tanstack/react-router'
-import { FilterPanel } from './FilterPanel'
 import type { Board } from '@/db/types/entities'
 import { Button } from '@/components/ui/button'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { useLayout } from '@/components/layout/LayoutContext'
 import {
@@ -141,43 +131,6 @@ export function BoardHeader({ title, isStarred }: BoardHeaderProps) {
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         >
           {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-        </Button>
-
-        <Separator orientation="vertical" className="h-4 mx-1" />
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-2 text-xs font-medium text-muted-foreground hover:text-foreground"
-            >
-              <Filter size={14} />
-              <span className="hidden sm:inline">Filter</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 p-0" align="end">
-            <FilterPanel />
-          </PopoverContent>
-        </Popover>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 gap-2 text-xs font-medium text-muted-foreground hover:text-foreground"
-        >
-          <ArrowDownWideNarrow size={14} />
-          <span className="hidden sm:inline">Sort</span>
-        </Button>
-
-        <Separator orientation="vertical" className="h-4 mx-1" />
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-        >
-          <Settings size={14} />
         </Button>
       </div>
     </div>
