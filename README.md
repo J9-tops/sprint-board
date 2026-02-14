@@ -1,15 +1,13 @@
 # Sprint Board
 
-A modern, local-first Kanban board application built for speed and privacy. Manage your sprints, tasks, and projects efficiently with a beautiful, responsive interface.
+A modern, local-first Kanban board application built for speed. Manage your sprints, tasks, and projects efficiently.
 
 ## Features
 
 - **Local-First Architecture**: All data is stored locally in your browser using IndexedDB. No server required, works offline.
 - **Kanban Board**: Drag-and-drop interface for managing tasks across lists.
 - **Project Structure**: Organize work into Workspaces and Boards.
-- **Rich Task Details** (Not implemented yet): Support for descriptions, checklists, labels, due dates, and attachments.
 - **Storage Management**: Detailed insights into local storage usage with quota management.
-- **Responsive Design**: Fully responsive layout optimized for desktop and mobile.
 - **Dark Mode**: Native support for light and dark themes.
 
 ## Tech Stack
