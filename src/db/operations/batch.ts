@@ -31,11 +31,9 @@ export async function batchUpdatePositions(
         store,
         id,
       )
-      if (item) {
-        item.position = position
-        if ('updatedAt' in item) item.updatedAt = Date.now()
-        store.put(item)
-      }
+      item.position = position
+      if ('updatedAt' in item) item.updatedAt = Date.now()
+      store.put(item)
     }
   })
 }
@@ -55,7 +53,6 @@ export async function moveCardTransaction(
     const cardStore = stores[STORE_NAMES.CARDS]
 
     const card = await txGet<Card>(cardStore, cardId)
-    if (!card) throw new Error(`Card ${cardId} not found`)
 
     // Get cards in target list
     const targetIdx = cardStore.index('listId')
@@ -97,7 +94,6 @@ export async function moveListTransaction(
     const listStore = stores[STORE_NAMES.LISTS]
 
     const list = await txGet<List>(listStore, listId)
-    if (!list) throw new Error(`List ${listId} not found`)
 
     // Get other lists in board
     const boardIndex = listStore.index('boardId')
@@ -133,10 +129,8 @@ async function normalizeStorePositions(
       store,
       id,
     )
-    if (item) {
-      item.position = position
-      if ('updatedAt' in item) item.updatedAt = Date.now()
-      store.put(item)
-    }
+    item.position = position
+    if ('updatedAt' in item) item.updatedAt = Date.now()
+    store.put(item)
   }
 }

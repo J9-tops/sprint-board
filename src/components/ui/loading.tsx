@@ -13,9 +13,7 @@ const Lottie = lazy(() =>
   import('lottie-react').then((m) => {
     const resolved = m.default as unknown as Record<string, unknown>
     const Component =
-      typeof resolved === 'function'
-        ? resolved
-        : (resolved?.default ?? resolved)
+      typeof resolved === 'function' ? resolved : (resolved.default ?? resolved)
     return { default: Component as ComponentType<LottieComponentProps> }
   }),
 )

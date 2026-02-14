@@ -79,9 +79,10 @@ export async function cascadeDeleteCard(cardId: string): Promise<void> {
     STORE_NAMES.ATTACHMENTS,
   ]
 
-  return runTransaction(storeNames, 'readwrite', async (stores) => {
+  return runTransaction(storeNames, 'readwrite', (stores) => {
     deleteCardData(stores, cardId)
     stores[STORE_NAMES.CARDS].delete(cardId)
+    return Promise.resolve()
   })
 }
 

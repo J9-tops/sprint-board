@@ -14,8 +14,6 @@ import { useRichTextEditor } from '@/hooks/useRichTextEditor'
 export function CardDescription() {
   const editor = useRichTextEditor()
 
-  if (!editor) return null
-
   const toolbarButtons = [
     {
       icon: Bold,
